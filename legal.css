@@ -1,0 +1,146 @@
+/* ============================================================
+   Minhas Letras — estilos das páginas legais
+   (Termos de Uso · Política de Privacidade · Política de Cookies)
+   Mesma paleta do site (preto/zinc) pra manter a identidade.
+   ============================================================ */
+
+:root {
+  --bg-base: #000000;
+  --bg-surface: #09090b;
+  --bg-card: #18181b;
+  --border: #27272a;
+  --border-bright: #3f3f46;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #fafafa;
+  --on-accent: #09090b;
+  --radius: 6px;
+  --font-display: 'Google Sans Flex', 'Segoe UI', sans-serif;
+  --font-sans: 'Google Sans Flex', 'Segoe UI', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 15.5px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  padding: 0 1rem 4rem;
+}
+
+a { color: var(--text-primary); }
+:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+/* ---------- Cabeçalho ---------- */
+.legal-top {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 0 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.legal-top .voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.legal-top .voltar:hover { color: var(--text-primary); }
+.legal-top h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 5vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-top: 1.1rem;
+}
+.legal-top .sub {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+}
+.legal-top .atualizado {
+  display: inline-block;
+  margin-top: 0.9rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+/* ---------- Sumário ---------- */
+.sumario {
+  max-width: 780px;
+  margin: 1.6rem auto 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.3rem;
+}
+.sumario b { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.sumario ol { margin: 0.6rem 0 0 1.15rem; font-size: 0.9rem; }
+.sumario li { margin: 0.25rem 0; }
+.sumario a { color: var(--text-secondary); text-decoration: none; }
+.sumario a:hover { color: var(--text-primary); text-decoration: underline; }
+
+/* ---------- Conteúdo ---------- */
+main {
+  max-width: 780px;
+  margin: 0 auto;
+}
+section { margin-top: 2.2rem; }
+section h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 1rem;
+}
+section h3 { font-size: 0.98rem; font-weight: 650; margin-top: 1.1rem; }
+section p { margin-top: 0.75rem; color: var(--text-secondary); }
+section p strong, section li strong { color: var(--text-primary); font-weight: 600; }
+section ul, section ol { margin: 0.7rem 0 0 1.2rem; color: var(--text-secondary); }
+section li { margin: 0.35rem 0; }
+section a { color: var(--text-primary); }
+
+.destaque {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.destaque strong { color: var(--text-primary); }
+
+/* ---------- Rodapé ---------- */
+.legal-foot {
+  max-width: 780px;
+  margin: 3rem auto 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+.legal-foot a { color: var(--text-secondary); text-decoration: none; }
+.legal-foot a:hover { color: var(--text-primary); text-decoration: underline; }
+
+@media (max-width: 560px) {
+  body { font-size: 15px; }
+  .legal-top { padding-top: 1.4rem; }
+}

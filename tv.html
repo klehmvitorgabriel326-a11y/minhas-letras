@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>2ª tela — Minhas Letras</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ccircle cx='256' cy='256' r='152' fill='%23fafafa'/%3E%3Ctext x='256' y='320' font-family=%22Verdana%22 font-size='200' font-weight='800' text-anchor='middle' fill='%23000000'%3E%E2%99%AA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- SDK do Supabase (só pra falar com OUTRO aparelho da mesma conta) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    /* 2ª TELA — espelho do player, sem botão nenhum. Feito pra TV/projetor. */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: #000;
+      color: #fafafa;
+      font-family: 'Google Sans Flex', 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Esperando o player abrir */
+    #espera {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      color: #a1a1aa;
+      font-size: clamp(1rem, 2.4vw, 1.6rem);
+      line-height: 1.6;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    #espera b { color: #fafafa; }
+
+    /* ---- Tela de conexão (link da conta) ---- */
+    #conectar {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      gap: 1.1rem;
+      max-width: 640px;
+      margin: 0 auto;
+      color: #a1a1aa;
+      font-size: clamp(0.95rem, 2vw, 1.25rem);
+      line-height: 1.6;
+    }
+    #conectar b { color: #fafafa; }
+    #conectar .campo { display: flex; gap: 0.6rem; width: 100%; max-width: 520px; }
+    #conectar input {
+      flex: 1;
+      min-width: 0;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      color: #fafafa;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    #conectar input:focus { outline: none; border-color: #3f3f46; }
+    #conectar button {
+      background: #fafafa;
+      color: #09090b;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.7rem 1.3rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #conectar button:hover { filter: brightness(0.92); }
+    #conectar .erro { color: #f87171; font-size: 0.9rem; min-height: 1.2em; }
+    #conectar .dica { font-size: 0.85rem; color: #71717a; }
+
+    /* ---- Barra de controle (controla o aparelho que está cantando) ---- */
+    /* Canto superior direito: embaixo já mora o contador "2 / 8". */
+    #controles {
+      position: fixed;
+      top: 0.9rem;
+      right: 1.2rem;
+      z-index: 20;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      background: rgba(24, 24, 27, 0.9);
+      border: 1px solid #27272a;
+      border-radius: 999px;
+      padding: 0.4rem;
+      backdrop-filter: blur(8px);
+    }
+    #controles button {
+      background: transparent;
+      border: 0;
+      color: #a1a1aa;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    #controles button:hover { background: #27272a; color: #fafafa; }
+    #controles button:active { transform: translateY(1px); }
+    #controles .modo { color: #fafafa; font-weight: 600; }
+    #controles.hidden { display: none; }
+
+    .hidden { display: none !important; }
+
+    #topo {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 0.9rem 1.6rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0));
+      pointer-events: none;
+    }
+    #titulo {
+      font-size: clamp(1.1rem, 2.6vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #artista { font-size: clamp(0.8rem, 1.6vw, 1.15rem); color: #a1a1aa; }
+
+    #palco { height: 100%; }
+
+    /* ---- MODO AUTO: espelha a rolagem do player ---- */
+    #auto {
+      height: 100%;
+      overflow: hidden;
+      padding: 34vh clamp(1.5rem, 5vw, 4rem) 55vh;
+    }
+    #auto-txt {
+      font-size: clamp(1.8rem, 4.4vw, 3.6rem);
+      line-height: 1.6;
+      font-weight: 500;
+      white-space: pre-wrap;
+      max-width: 1400px;
+      margin: 0 auto;
+      will-change: transform;
+    }
+    #auto-txt .estrofe { display: block; margin-bottom: 1.4em; }
+    #auto-txt .ln { display: block; }
+    #auto-txt .cifra { font-family: 'JetBrains Mono', Consolas, monospace; color: #a1a1aa; font-size: 0.72em; }
+
+    /* ---- MODO MANUAL: só a estrofe atual ---- */
+    #manual {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: clamp(1.5rem, 5vw, 4rem);
+    }
+    #manual-txt {
+      font-size: clamp(2.2rem, 6vw, 5rem);
+      line-height: 1.5;
+      font-weight: 600;
+      white-space: pre-wrap;
+      max-width: 1500px;
+      animation: surgir 0.3s ease-out;
+    }
+    #manual-txt .cifra {
+      display: block;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: #a1a1aa;
+      font-size: 0.55em;
+      font-weight: 400;
+      margin-bottom: 0.15em;
+      white-space: pre;
+      text-align: left;
+      width: max-content;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #progresso {
+      position: fixed;
+      bottom: 1.4rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+      color: #a1a1aa;
+      background: rgba(24,24,27,0.85);
+      border: 1px solid #27272a;
+      border-radius: 999px;
+      padding: 0.35rem 1.1rem;
+    }
+    @keyframes surgir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    /* Ritmo/rolagem suavizada via JS (lerp) — aqui só desligamos transição */
+    @media (prefers-reduced-motion: reduce) {
+      #manual-txt { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="espera">
+    <p>Essa é a <b>2ª tela</b> do Minhas Letras.<br><br>
+    Abra o Minhas Letras, toque numa música e aperte o botão <b>TV</b> — a letra aparece aqui, em tempo real.</p>
+  </div>
+
+  <!-- Conexão por link (outro aparelho, mesma conta) -->
+  <div id="conectar" class="hidden">
+    <p>Conecte esta tela na sua conta:<br>
+    no <b>Minhas Letras</b> (PC ou celular), toque no botão <b>TV</b> e copie o <b>link pro outro aparelho</b>.</p>
+    <div class="campo">
+      <input type="text" id="i-link" placeholder="cole o link aqui" spellcheck="false" autocomplete="off">
+      <button type="button" id="btn-conectar">Conectar</button>
+    </div>
+    <p class="erro" id="conectar-erro"></p>
+    <p class="dica">O link é gerado na sua conta e dá acesso a ela — guarde ele como senha.</p>
+  </div>
+
+  <div id="topo" class="hidden">
+    <div id="titulo">—</div>
+    <div id="artista">—</div>
+  </div>
+
+  <!-- Controle remoto: manda ordem pro aparelho que está cantando -->
+  <div id="controles" class="hidden">
+    <button type="button" class="modo" id="c-modo" title="Alternar Auto / Manual">Auto</button>
+    <button type="button" id="c-voltar" title="Estrofe anterior">◀ Estrofe</button>
+    <button type="button" id="c-pausar" title="Pausar / continuar">⏸ Pausar</button>
+    <button type="button" id="c-avancar" title="Próxima estrofe">Estrofe ▶</button>
+  </div>
+
+  <div id="palco" class="hidden">
+    <div id="auto" class="hidden"><div id="auto-txt"></div></div>
+    <div id="manual" class="hidden">
+      <div id="manual-txt"></div>
+      <div id="progresso"></div>
+    </div>
+  </div>
+
+  <script>
+    (function telaTV() {
+      'use strict';
+
+      // Mesmo canal do script.js — BroadcastChannel não precisa de servidor
+      var CANAL = 'minhas-letras-tv';
+      var canal = null;
+      try { canal = new BroadcastChannel(CANAL); } catch (e) { canal = null; }
+
+      var $ = function (s) { return document.querySelector(s); };
+      var espera = $('#espera'), topo = $('#topo'), palco = $('#palco');
+      var auto = $('#auto'), autoTxt = $('#auto-txt');
+      var manual = $('#manual'), manualTxt = $('#manual-txt'), progresso = $('#progresso');
+
+      var estado = null;          // último estado recebido
+      var topoAlvo = 0;           // posição alvo da rolagem (auto)
+      var topoAtual = 0;          // posição suavizada
+      var animando = false;
+      var chaveManual = null;     // o que estava desenhado no modo manual
+      var tsRecebido = 0;         // ts do último estado aplicado (descarta atrasado)
+      var topoDesenhado = null;   // música cujo topo/cabeçalho já foi pintado
+
+      // ---- TV de OUTRO aparelho (Supabase Realtime) ----
+      // mesma conta, mesmo canal "tv-<user id>" que o script.js do player abre
+      var SUPABASE_URL = 'https://vhkedqpcnqwoyaqkdyfk.supabase.co';
+      var SUPABASE_KEY = 'sb_publishable_6IxkP-rxpQq4Ivr5ulTV6g_65a8RER4';
+      var sb = null;              // client do supabase
+      var canalNuvem = null;
+      var ultimaMensagem = 0;     // quando chegou o último estado (timeout)
+      var esperandoTimer = null;
+      var conectar = $('#conectar');
+      var controles = $('#controles');
+
+      // Heurística de linha de acorde (mesma ideia do script.js) — só pra ESTILO
+      function ehAcorde(l) {
+        var t = l.trim();
+        if (!t) return false;
+        return /^[\|\s]*([A-G][#b]?(?:m|maj|min|dim|aug|sus|add|[0-9])?(?:\/[A-G][#b]?)?\s*)+[\|\s]*$/.test(t)
+            || /^\[.*\]$/.test(t);
+      }
+
+      function escapar(s) {
+        return String(s).replace(/[&<>"']/g, function (m) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+      }
+
+      // Divide a letra em estrofes (linha em branco separa)
+      function estrofesDe(letra) {
+        return String(letra || '').split(/\n\s*\n/).map(function (s) { return s.trim(); })
+          .filter(function (s) { return s !== ''; });
+      }
+
+      function esconderTudo() {
+        topo.classList.add('hidden');
+        palco.classList.add('hidden');
+        auto.classList.add('hidden');
+        manual.classList.add('hidden');
+        if (controles) controles.classList.add('hidden');
+        espera.classList.remove('hidden');
+      }
+
+      function mostrarTopo(musica) {
+        // O estado chega a cada 200ms. Repintar o cabeçalho só quando a MÚSICA
+        // muda — antes o textContent era reescrito 5x por segundo e dava aquela
+        // sensação de piscar no título/artista.
+        var id = String(musica.id);
+        if (topoDesenhado === id) {
+          espera.classList.add('hidden');
+          topo.classList.remove('hidden');
+          palco.classList.remove('hidden');
+          return;
+        }
+        topoDesenhado = id;
+        espera.classList.add('hidden');
+        topo.classList.remove('hidden');
+        palco.classList.remove('hidden');
+        $('#titulo').textContent = musica.titulo || '—';
+        $('#artista').textContent = musica.artista || '';
+        document.title = (musica.titulo || '2ª tela') + ' — Minhas Letras';
+      }
+
+      // Estrofes em HTML (cifra ganha estilo mono por cima da letra)
+      function htmlEstrofes(letra) {
+        return estrofesDe(letra).map(function (estrofe) {
+          var linhas = estrofe.split('\n').map(function (linha) {
+            var cls = ehAcorde(linha) ? 'ln cifra' : 'ln';
+            return '<span class="' + cls + '">' + escapar(linha) + '</span>';
+          }).join('');
+          return '<span class="estrofe">' + linhas + '</span>';
+        }).join('');
+      }
+
+      function renderAuto(d) {
+        manual.classList.add('hidden');
+        auto.classList.remove('hidden');
+        // Reconstrói só se a música mudou (senão derruba a rolagem suave)
+        if (autoTxt.dataset.musica !== String(d.musica.id)) {
+          autoTxt.innerHTML = htmlEstrofes(d.musica.letra);
+          autoTxt.dataset.musica = String(d.musica.id);
+        }
+        // A progressão (0..1) vem do player — aqui ela vira pixels DESTE layout,
+        // que tem fonte e margens diferentes da tela de controle.
+        const meuMax = Math.max(0, auto.scrollHeight - auto.clientHeight);
+        const p = Math.max(0, Math.min(1, Number(d.progresso) || 0));
+        topoAlvo = p * meuMax;
+        suavizar();
+      }
+
+      // A rolagem vem a cada ~200ms — aqui a gente "corre atrás" do alvo
+      // em cada frame, então a letra anda lisa na TV.
+      function suavizar() {
+        if (animando) return;
+        animando = true;
+        (function passo() {
+          var dif = topoAlvo - topoAtual;
+          if (Math.abs(dif) < 0.5) {
+            topoAtual = topoAlvo;
+            auto.scrollTop = topoAtual;
+            animando = false;
+            return;
+          }
+          topoAtual += dif * 0.18; // respiro: encosta devagar no alvo
+          auto.scrollTop = topoAtual;
+          requestAnimationFrame(passo);
+        })();
+      }
+
+      function renderManual(d) {
+        auto.classList.add('hidden');
+        manual.classList.remove('hidden');
+        var est = estrofesDe(d.musica.letra);
+        var i = Math.max(0, Math.min(Number(d.atual) || 0, est.length - 1));
+        var alvo = est[i] || '';
+        // O player manda estado a cada ~200ms. Sem esse "guard", a gente
+        // reescrevia o HTML e reiniciava a animação de entrada 5x por segundo —
+        // era isso que fazia a letra PISCAR e pular pra cima/baixo.
+        var chave = String(d.musica.id) + ':' + i + ':' + (d.cifraAtivo ? 'c' : 'p') + ':' + (Number(d.transpose) || 0);
+        if (chave === chaveManual) return;
+        chaveManual = chave;
+        // Modo cifra: separa as linhas de acorde das de letra
+        manualTxt.innerHTML = alvo.split('\n').map(function (linha) {
+          if (linha.trim() === '') return '<br>';
+          return ehAcorde(linha)
+            ? '<span class="cifra">' + escapar(linha) + '</span>'
+            : escapar(linha) + '<br>';
+        }).join('');
+        manualTxt.style.animation = 'none';
+        void manualTxt.offsetWidth;   // reinicia a animação de entrada
+        manualTxt.style.animation = '';
+        progresso.textContent = (i + 1) + ' / ' + est.length;
+      }
+
+      // Mostra/esconde os botões conforme o modo do player — e eles MANDAM
+      // a ordem pro aparelho que está cantando (controle remoto).
+      var chaveControles = null;
+      function atualizarControles(d) {
+        if (!controles) return;
+        controles.classList.remove('hidden');
+        // Guard: só repinta se modo/rolando mudaram. Antes o textContent dos
+        // botões era reescrito a cada 200ms sem necessidade.
+        var chave = d.modo + '|' + (d.rolando ? 1 : 0);
+        if (chave === chaveControles) return;
+        chaveControles = chave;
+        var bModo = $('#c-modo');
+        if (bModo) bModo.textContent = d.modo === 'auto' ? 'Auto' : 'Manual';
+        var ehManual = d.modo === 'manual';
+        var bVoltar = $('#c-voltar'), bAvancar = $('#c-avancar'), bPausar = $('#c-pausar');
+        if (bVoltar) bVoltar.style.display = ehManual ? '' : 'none';
+        if (bAvancar) bAvancar.style.display = ehManual ? '' : 'none';
+        if (bPausar) {
+          bPausar.style.display = ehManual ? 'none' : '';
+          bPausar.textContent = d.rolando ? '⏸ Pausar' : '▶ Continuar';
+        }
+      }
+
+      function receber(ev) {
+        var d = ev && ev.data;
+        if (!d || !d.t) return;
+        // O mesmo estado chega 2x (canal local ~0ms + nuvem 100-500ms).
+        // Se a cópia atrasada viesse depois da nova, a tela PISCABA — a rolagem
+        // andava pra trás e voltava, e no manual re-renderizava a estrofe errada
+        // com animação de entrada. Compara o ts do remetente e descarta o velho.
+        if (typeof d.ts === 'number') {
+          if (d.ts <= tsRecebido) return;   // atrasado OU duplicado (outro canal)
+          tsRecebido = d.ts;
+        }
+        ultimaMensagem = Date.now();
+        if (d.t === 'fechar') { esconderTudo(); document.title = '2ª tela — Minhas Letras'; return; }
+        if (d.t !== 'musica' && d.t !== 'estado') return;
+        if (!d.musica) return;
+        estado = d;
+        if (conectar) conectar.classList.add('hidden'); // já chegou letra → tela de conexão não serve mais
+        mostrarTopo(d.musica);
+        if (d.modo === 'manual') renderManual(d);
+        else renderAuto(d);
+        atualizarControles(d);
+        agendarEspera();
+      }
+
+      // Ficou 6s sem sinal do player? Volta pra tela de espera (em vez de
+      // congelar a última letra na tela).
+      function agendarEspera() {
+        if (esperandoTimer) clearTimeout(esperandoTimer);
+        esperandoTimer = setTimeout(function () {
+          if (Date.now() - ultimaMensagem >= 6000) esconderTudo();
+        }, 6500);
+      }
+
+      // ---- controle remoto: manda a ordem (local e/ou pela nuvem) ----
+      function mandarComando(acao, valor) {
+        if (canal) { try { canal.postMessage({ t: 'comando', acao: acao, valor: valor }); } catch (e) {} }
+        if (canalNuvem) {
+          try { canalNuvem.send({ type: 'broadcast', event: 'comando', payload: { acao: acao, valor: valor } }); }
+          catch (e) {}
+        }
+      }
+
+      function conectarPorLink() {
+        var erro = $('#conectar-erro');
+        var inp = $('#i-link');
+        var txt = (inp && inp.value) || '';
+        var at = (txt.match(/access_token=([^&#\s]+)/) || [])[1];
+        var rt = (txt.match(/refresh_token=([^&#\s]+)/) || [])[1];
+        if (!at || !rt) {
+          if (erro) erro.textContent = 'Esse link não parece válido — copia ele inteiro do Minhas Letras.';
+          return;
+        }
+        if (erro) erro.textContent = '';
+        (async function () {
+          try {
+            if (!sb) throw new Error('sem sdk');
+            var r = await sb.auth.setSession({
+              access_token: decodeURIComponent(at),
+              refresh_token: decodeURIComponent(rt)
+            });
+            if (r && r.error) throw r.error;
+            var g = await sb.auth.getSession();
+            var sessao = g && g.data && g.data.session;
+            if (!sessao || !sessao.user) throw new Error('sem sessão');
+            if (conectar) conectar.classList.add('hidden');
+            conectarNuvem(sessao.user.id);
+          } catch (e) {
+            if (erro) erro.textContent = 'Não consegui conectar — o link pode ter expirado. Gere outro no Minhas Letras.';
+          }
+        })();
+      }
+
+      // Liga no canal da conta e fica avisando que está ouvindo (ping).
+      function conectarNuvem(uid) {
+        if (!sb) return;
+        try {
+          canalNuvem = sb.channel('tv-' + uid, { config: { broadcast: { self: false } } });
+          canalNuvem
+            .on('broadcast', { event: 'estado' }, function (ev) { receber({ data: ev.payload }); })
+            .subscribe();
+        } catch (e) { canalNuvem = null; }
+        function ping() {
+          if (!canalNuvem) return;
+          try { canalNuvem.send({ type: 'broadcast', event: 'ping', payload: {} }); } catch (e) {}
+        }
+        ping();
+        setInterval(ping, 3000);
+      }
+
+      if (canal) {
+        canal.onmessage = receber;
+        // Avisa o player que a 2ª tela chegou (ele responde com o estado atual)
+        canal.postMessage({ t: 'ola' });
+      } else if (!window.supabase) {
+        $('#espera').innerHTML = '<p>Seu navegador não suporta <b>BroadcastChannel</b>, então a 2ª tela não funciona aqui.<br>Tenta em Chrome, Edge ou Firefox.</p>';
+      }
+
+      // Fechou a janela → avisa o player pra parar de mandar
+      window.addEventListener('beforeunload', function () {
+        if (canal) { try { canal.postMessage({ t: 'tchau' }); } catch (e) {} }
+      });
+
+      // Botões de controle remoto
+      var bVoltar = $('#c-voltar'), bAvancar = $('#c-avancar'), bPausar = $('#c-pausar'), bModo = $('#c-modo');
+      if (bVoltar) bVoltar.addEventListener('click', function () { mandarComando('voltar'); });
+      if (bAvancar) bAvancar.addEventListener('click', function () { mandarComando('avancar'); });
+      if (bPausar) bPausar.addEventListener('click', function () { mandarComando('pausar'); });
+      if (bModo) bModo.addEventListener('click', function () {
+        mandarComando('modo', estado && estado.modo === 'auto' ? 'manual' : 'auto');
+      });
+
+      // Conexão por link (ou sessão que já estava salva neste aparelho)
+      var bConectar = $('#btn-conectar');
+      if (bConectar) bConectar.addEventListener('click', conectarPorLink);
+      var iLink = $('#i-link');
+      if (iLink) iLink.addEventListener('keydown', function (e) { if (e.key === 'Enter') conectarPorLink(); });
+
+      // Processa o link com os tokens no fim da URL (#access_token=...).
+      // Roda no boot e também no 'hashchange' — se a página já estava aberta
+      // e o usuário colou o link de novo, o Chrome não recarrega o documento,
+      // só muda o hash (aí só o hashchange salva).
+      async function processarLinkHash() {
+        var hash = location.hash || '';
+        if (!sb || !/access_token=/.test(hash) || !refreshTokenNoHash(hash)) return false;
+        var at = (hash.match(/access_token=([^&#]+)/) || [])[1];
+        var rt = (hash.match(/refresh_token=([^&#]+)/) || [])[1];
+        try {
+          var r = await sb.auth.setSession({ access_token: decodeURIComponent(at), refresh_token: decodeURIComponent(rt) });
+          if (r && r.error) throw r.error;
+        } catch (e) {
+          if (conectar) {
+            conectar.classList.remove('hidden');
+            var er = $('#conectar-erro');
+            if (er) er.textContent = 'Esse link expirou — gere outro no Minhas Letras.';
+          }
+          try { history.replaceState(null, '', location.pathname); } catch (e2) {}
+          return false;
+        }
+        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        if (conectar) conectar.classList.add('hidden');
+        // sessão salva agora → conecta no canal da conta
+        try {
+          var g = await sb.auth.getSession();
+          var sessao = g && g.data && g.data.session;
+          if (sessao && sessao.user) conectarNuvem(sessao.user.id);
+        } catch (e) {}
+        return true;
+      }
+      function refreshTokenNoHash(h) { return /refresh_token=/.test(h); }
+
+      (async function boot() {
+        try {
+          if (window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) { sb = null; }
+
+        // Veio com link? (access_token/#refresh_token no fim da URL)
+        var processou = false;
+        if (sb) {
+          processou = await processarLinkHash();
+          window.addEventListener('hashchange', function () { processarLinkHash(); });
+        }
+
+        // Já tem sessão salva neste aparelho? Conecta direto.
+        var sessao = null;
+        if (sb && !processou) {
+          try {
+            var g = await sb.auth.getSession();
+            sessao = g && g.data && g.data.session;
+          } catch (e) {}
+        }
+        if (!processou) {
+          if (sessao && sessao.user) {
+            conectarNuvem(sessao.user.id);
+          } else if (conectar) {
+            conectar.classList.remove('hidden'); // sem conta → mostra o campo do link
+          }
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

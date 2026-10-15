@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Letra compartilhada — Minhas Letras</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ccircle cx='256' cy='256' r='152' fill='%23fafafa'/%3E%3Ctext x='256' y='320' font-family=%22Verdana%22 font-size='200' font-weight='800' text-anchor='middle' fill='%23000000'%3E%E2%99%AA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back,music_note,pause,play_arrow,close&display=block">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Página de compartilhamento: read-only, sem navegação extra */
+    #share-view {
+      height: 100vh; height: 100dvh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      position: relative; z-index: 1;
+      background: transparent;
+    }
+    #share-topo {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-surface); border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    #share-topo .titulo { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #share-topo .artista { font-size: 0.75rem; color: var(--text-secondary); }
+    #share-topo .modo-toggle { margin-left: auto; }
+    #share-stage { flex: 1; overflow: hidden; position: relative; }
+    #share-erro {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      gap: 1rem; padding: 2rem;
+    }
+    #share-erro h2 { font-family: var(--font-display); font-weight: 600; }
+    #share-erro p { color: var(--text-secondary); max-width: 420px; }
+    #share-rodape {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      text-align: center; padding: 0.5rem;
+      font-size: 0.7rem; color: var(--text-muted);
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      pointer-events: none; z-index: 50;
+    }
+    #share-rodape a { color: var(--text-secondary); pointer-events: auto; text-decoration: none; }
+    #share-rodape a:hover { text-decoration: underline; }
+    .share-badge {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      background: var(--accent); color: var(--on-accent);
+      padding: 0.15rem 0.5rem; border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particle-wave" aria-hidden="true"></canvas>
+
+  <div id="share-view">
+    <div id="share-erro">
+      <span class="msi" style="font-size:3rem;opacity:0.5">music_note</span>
+      <h2>Carregando letra…</h2>
+      <p>Um momento.</p>
+    </div>
+  </div>
+
+  <div id="share-rodape">
+    <a href="index.html">Minhas Letras</a> · letra compartilhada (somente leitura)
+  </div>
+
+  <!-- SDK do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+  (function sharePage() {
+    'use strict';
+
+    var SUPABASE_URL = 'https://vhkedqpcnqwoyaqkdyfk.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_6IxkP-rxpQq4Ivr5ulTV6g_65a8RER4';
+    var SHARE_SECRET = 'ml-share-secret-v1-2026';
+
+    var $ = function(s) { return document.querySelector(s); };
+    var shareView = $('#share-view');
+
+    // ===== Helpers =====
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+
+    function toast(msg, tipo) {
+      var t = document.createElement('div');
+      t.className = 'toast ' + (tipo || 'success');
+      t.textContent = msg;
+      var region = document.querySelector('#toast-region');
+      if (!region) {
+        region = document.createElement('div');
+        region.id = 'toast-region';
+        region.setAttribute('role', 'status');
+        document.body.appendChild(region);
+      }
+      region.appendChild(t);
+      setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 0.2s'; }, 3000);
+      setTimeout(function() { t.remove(); }, 3300);
+    }
+
+    // ===== Verificação do token HMAC =====
+    async function verificarShareToken(id, token) {
+      // crypto.subtle só funciona em contexto seguro (HTTPS ou localhost)
+      if (!window.crypto || !window.crypto.subtle) {
+        console.warn('crypto.subtle não disponível — contexto inseguro (precisa HTTPS)');
+        return false;
+      }
+      try {
+        var key = await crypto.subtle.importKey(
+          'raw', new TextEncoder().encode(SHARE_SECRET),
+          { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+        );
+        var sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(String(id)));
+        var esperado = Array.from(new Uint8Array(sig)).slice(0, 12)
+          .map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+        if (token.length !== esperado.length) return false;
+        var diff = 0;
+        for (var i = 0; i < token.length; i++) diff |= token.charCodeAt(i) ^ esperado.charCodeAt(i);
+        return diff === 0;
+      } catch { return false; }
+    }
+
+    // ===== Parser de cifras (igual ao do player) =====
+    var NOTAS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    var NOTAS_BEMOL = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+    function ehLinhaAcordes(linha) {
+      var limpa = linha.trim();
+      if (!limpa) return false;
+      return /^[\|\s]*([A-G][#b]?(?:m|maj|min|dim|aug|sus|add|[0-9])?(?:\/[A-G][#b]?)?\s*)+[\|\s]*$/.test(limpa) ||
+             /^\[.*\]$/.test(limpa);
+    }
+
+    function transporNota(nota, semitons) {
+      var idx = NOTAS.indexOf(nota);
+      if (idx === -1) {
+        var idxB = NOTAS_BEMOL.indexOf(nota);
+        if (idxB === -1) return nota;
+        return NOTAS_BEMOL[(idxB + semitons + 12) % 12];
+      }
+      return NOTAS[(idx + semitons + 12) % 12];
+    }
+
+    function transporLinha(linha, semitons) {
+      if (semitons === 0) return linha;
+      return linha.replace(/\b([A-G][#b]?(?:m|maj|min|dim|aug|sus|add|[0-9])?(?:\/[A-G][#b]?)?)\b/g, function(match) {
+        var m = match.match(/^([A-G][#b]?)(.*)$/);
+        if (!m) return match;
+        return transporNota(m[1], semitons) + m[2];
+      });
+    }
+
+    // ===== Estado do player =====
+    var musica = null;
+    var modo = 'auto';
+    var estrofes = [];
+    var atual = 0;
+    var rolando = false;
+    var timer = null;
+    var cifraAtivo = false;
+    var transpose = 0;
+    var animOut = false;
+    var scrollTop = 0;
+
+    function iniciarPlayer(l) {
+      musica = l;
+      document.title = l.titulo + ' — Minhas Letras';
+      estrofes = String(l.letra || '').split(/\n\s*\n/).map(function(s) { return s.trim(); }).filter(Boolean);
+      shareView.innerHTML = '';
+      // Topo
+      var topo = document.createElement('div');
+      topo.id = 'share-topo';
+      topo.innerHTML =
+        '<div class="pt-info"><div class="titulo">' + escapeHtml(l.titulo) + '</div>' +
+        '<div class="artista">' + escapeHtml(l.artista || '—') + '</div></div>' +
+        '<span class="share-badge">só leitura</span>' +
+        '<div class="mode-toggle">' +
+        '<button data-modo="auto" class="active" id="s-modo-auto">Auto</button>' +
+        '<button data-modo="manual" id="s-modo-manual">Manual</button></div>' +
+        '<button class="btn-ghost btn-sm" id="s-cifra" title="Modo cifra (C)"><span class="msi">music_note</span></button>';
+      shareView.appendChild(topo);
+      // Stage
+      var stage = document.createElement('div');
+      stage.id = 'share-stage';
+      shareView.appendChild(stage);
+
+      // Listeners
+      $('#s-modo-auto').addEventListener('click', function() { setModo('auto'); });
+      $('#s-modo-manual').addEventListener('click', function() { setModo('manual'); });
+      $('#s-cifra').addEventListener('click', alternarCifra);
+
+      render();
+      if (modo === 'auto') iniciarAuto();
+    }
+
+    function setModo(m) {
+      if (m === modo) return;
+      pararAuto();
+      modo = m;
+      $('#s-modo-auto').classList.toggle('active', modo === 'auto');
+      $('#s-modo-manual').classList.toggle('active', modo === 'manual');
+      render();
+      if (modo === 'auto') iniciarAuto();
+    }
+
+    function render() {
+      var stage = $('#share-stage');
+      if (!stage || !musica) return;
+      if (modo === 'auto') renderAuto(stage);
+      else renderManual(stage);
+    }
+
+    function renderAuto(stage) {
+      var html;
+      if (cifraAtivo) {
+        html = parseCifra(musica.letra, transpose);
+        stage.innerHTML = '<div class="auto-scroll" id="s-auto-scroll"><div class="lyric-text cifra-mode">' + html + '</div></div>';
+      } else {
+        html = estrofes.map(function(e) {
+          var linhas = e.split('\n').map(function(l) {
+            return '<span class="ln">' + (l.trim() === '' ? '&nbsp;' : escapeHtml(l)) + '</span>';
+          }).join('');
+          return '<span class="estrofe">' + linhas + '</span>';
+        }).join('');
+        stage.innerHTML = '<div class="auto-scroll" id="s-auto-scroll"><div class="lyric-text">' + html + '</div></div>';
+      }
+      var sc = $('#s-auto-scroll');
+      if (sc) sc.scrollTop = scrollTop;
+    }
+
+    function renderManual(stage) {
+      atual = Math.max(0, Math.min(atual, estrofes.length - 1));
+      if (cifraAtivo) {
+        // Parse completo com cifra, depois extrai só a estrofe atual
+        var htmlCompleto = parseCifra(musica.letra, transpose);
+        // O parseCifra retorna divs .cifra-estrofe — pega a do índice 'atual'
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlCompleto;
+        var estrofesCifra = tempDiv.querySelectorAll('.cifra-estrofe');
+        var conteudo = '';
+        if (estrofesCifra[atual]) {
+          conteudo = estrofesCifra[atual].outerHTML;
+        } else {
+          conteudo = '<div class="cifra-estrofe"><div class="cifra-linha"><div class="cifra-letra">' + escapeHtml(estrofes[atual] || '') + '</div></div></div>';
+        }
+        stage.innerHTML =
+          '<div class="manual-view cifra-mode" id="s-manual-view">' +
+          '<div class="manual-hint">Toque ou aperte <b>Espaço</b> para avançar · <b>seta ↑</b> para voltar</div>' +
+          '<div class="lyric-line fade-in" id="s-lyric-line">' + conteudo + '</div>' +
+          '<div class="manual-progress" id="s-manual-progress">' + (atual + 1) + ' / ' + estrofesCifra.length + '</div>' +
+          '</div>';
+      } else {
+        stage.innerHTML =
+          '<div class="manual-view" id="s-manual-view">' +
+          '<div class="manual-hint">Toque ou aperte <b>Espaço</b> para avançar · <b>seta ↑</b> para voltar</div>' +
+          '<div class="lyric-line fade-in" id="s-lyric-line">' + escapeHtml(estrofes[atual] || '') + '</div>' +
+          '<div class="manual-progress" id="s-manual-progress">' + (atual + 1) + ' / ' + estrofes.length + '</div>' +
+          '</div>';
+      }
+      var ln = $('#s-lyric-line');
+      if (ln) ajustarEstrofe(ln);
+    }
+
+    function parseCifra(letra, semitons) {
+      semitons = semitons || 0;
+      var linhas = String(letra || '').split('\n');
+      var estrofesParsed = [];
+      var estrofeAtual = [];
+      for (var i = 0; i < linhas.length; i++) {
+        var linha = linhas[i];
+        if (ehLinhaAcordes(linha)) {
+          estrofeAtual.push({ tipo: 'acordes', texto: transporLinha(linha, semitons) });
+        } else if (linha.trim() === '') {
+          if (estrofeAtual.length > 0) { estrofesParsed.push(estrofeAtual); estrofeAtual = []; }
+        } else {
+          var acordes = (estrofeAtual.length > 0 && estrofeAtual[estrofeAtual.length - 1].tipo === 'acordes')
+            ? estrofeAtual.pop().texto : null;
+          estrofeAtual.push({ tipo: 'letra', texto: linha, acordes: acordes });
+        }
+      }
+      if (estrofeAtual.length > 0) estrofesParsed.push(estrofeAtual);
+
+      return estrofesParsed.map(function(estrofe) {
+        var linhasHtml = estrofe.map(function(linha) {
+          if (linha.tipo === 'letra') {
+            if (linha.acordes) {
+              return '<div class="cifra-linha"><div class="cifra-acordes">' + escapeHtml(linha.acordes) + '</div><div class="cifra-letra">' + escapeHtml(linha.texto) + '</div></div>';
+            }
+            return '<div class="cifra-linha"><div class="cifra-letra">' + escapeHtml(linha.texto) + '</div></div>';
+          }
+          return '<div class="cifra-linha"><div class="cifra-acordes">' + escapeHtml(linha.texto) + '</div></div>';
+        }).join('');
+        return '<div class="cifra-estrofe">' + linhasHtml + '</div>';
+      }).join('');
+    }
+
+    function iniciarAuto() {
+      var sc = $('#s-auto-scroll');
+      if (!sc) return;
+      rolando = true;
+      clearInterval(timer);
+      timer = setInterval(function() {
+        if (!rolando) return;
+        sc.scrollTop += 1.75; // ~35 * 0.05 (mesma velocidade padrão)
+        if (sc.scrollTop >= sc.scrollHeight - sc.clientHeight - 2) pararAuto();
+      }, 30);
+    }
+
+    function pararAuto() {
+      rolando = false;
+      clearInterval(timer);
+      timer = null;
+    }
+
+    function toggleAuto() {
+      var sc = $('#s-auto-scroll');
+      if (!sc) return;
+      if (rolando) { pararAuto(); return; }
+      if (sc.scrollTop >= sc.scrollHeight - sc.clientHeight - 2) sc.scrollTop = 0;
+      iniciarAuto();
+    }
+
+    function alternarCifra() {
+      if (!musica) return;
+      cifraAtivo = !cifraAtivo;
+      $('#s-cifra').classList.toggle('active', cifraAtivo);
+      render();
+      if (modo === 'auto' && cifraAtivo) iniciarAuto();
+    }
+
+    function avancar() {
+      if (animOut || modo !== 'manual') return;
+      if (atual >= estrofes.length - 1) return;
+      var line = $('#s-lyric-line');
+      if (!line) return;
+      animOut = true;
+      line.classList.add('fade-out');
+      setTimeout(function() {
+        try { atual++; render(); }
+        finally { animOut = false; }
+      }, 150);
+    }
+
+    function voltar() {
+      if (animOut || modo !== 'manual' || atual <= 0) return;
+      atual--;
+      render();
+    }
+
+    function ajustarEstrofe(line) {
+      var view = line.closest('.manual-view');
+      if (!view) return;
+      line.style.fontSize = '';
+      var estilos = window.getComputedStyle(view);
+      var padding = parseFloat(estilos.paddingTop) + parseFloat(estilos.paddingBottom);
+      var disponivel = view.clientHeight - padding - 80;
+      if (disponivel <= 0) return;
+      for (var i = 0; i < 4; i++) {
+        var necessario = line.getBoundingClientRect().height;
+        if (necessario <= disponivel) break;
+        var atualPx = parseFloat(window.getComputedStyle(line).fontSize);
+        var novaPx = Math.max(12, Math.floor(atualPx * (disponivel / necessario)));
+        if (novaPx >= atualPx) break;
+        line.style.fontSize = novaPx + 'px';
+      }
+    }
+
+    // ===== Teclado =====
+    document.addEventListener('keydown', function(e) {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (modo === 'auto') toggleAuto();
+        else avancar();
+      }
+      if (e.key === 'ArrowDown' && modo === 'manual') { e.preventDefault(); avancar(); }
+      if (e.key === 'ArrowUp' && modo === 'manual') { e.preventDefault(); voltar(); }
+      if (e.key === 'c' || e.key === 'C') alternarCifra();
+    });
+
+    // ===== Carregar letra =====
+    function mostrarErro(titulo, msg) {
+      shareView.innerHTML =
+        '<div id="share-erro">' +
+        '<span class="msi" style="font-size:3rem;opacity:0.5">music_note</span>' +
+        '<h2>' + escapeHtml(titulo) + '</h2>' +
+        '<p>' + escapeHtml(msg) + '</p>' +
+        '</div>';
+    }
+
+    async function carregar() {
+      var params = new URLSearchParams(location.search);
+      var id = params.get('share');
+      var token = params.get('token');
+
+      if (!id || !token) {
+        mostrarErro('Link incompleto', 'Esse link não tem os parâmetros de acesso. Pede um novo pra quem compartilhou.');
+        return;
+      }
+
+      // Verifica token
+      var ok = await verificarShareToken(id, token);
+      if (!ok) {
+        mostrarErro('Link inválido', 'O token de acesso não confere. Esse link pode ter sido alterado ou corrompido.');
+        return;
+      }
+
+      // Busca a letra na nuvem (acesso público via RLS/ou sem auth)
+      var sb = null;
+      try {
+        if (window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch {}
+
+      if (sb) {
+        try {
+          var r = await sb.from('letras').select('*').eq('id', id).single();
+          if (r && r.data && !r.error) {
+            iniciarPlayer(r.data);
+            return;
+          }
+        } catch {}
+      }
+
+      // Fallback: procura no localStorage (mesmo navegador)
+      try {
+        var locais = JSON.parse(localStorage.getItem('ml_letras') || '[]');
+        var l = locais.find(function(x) { return String(x.id) === String(id); });
+        if (l) { iniciarPlayer(l); return; }
+      } catch {}
+
+      mostrarErro('Letra não encontrada', 'A música não existe mais ou foi apagada pelo dono.');
+    }
+
+    carregar();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas Letras — Guia de uso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Guia de uso — layout pensado pra PDF (A4) ===== */
+    @page { size: A4; margin: 16mm 15mm 18mm; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans Flex', 'Segoe UI', system-ui, sans-serif;
+      color: #18181b;
+      background: #ffffff;
+      font-size: 11.2pt;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- Capa ---------- */
+    .capa {
+      border-bottom: 3px solid #18181b;
+      padding-bottom: 14pt;
+      margin-bottom: 20pt;
+    }
+    .capa .marca {
+      display: inline-flex; align-items: center; gap: 8pt;
+      font-size: 9.5pt; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: #71717a;
+    }
+    .capa .bolha {
+      width: 26pt; height: 26pt; border-radius: 8pt; background: #18181b;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 14pt;
+    }
+    .capa h1 {
+      font-size: 30pt; font-weight: 750; letter-spacing: -0.03em;
+      margin-top: 14pt; line-height: 1.1;
+    }
+    .capa .sub { font-size: 13pt; color: #52525b; margin-top: 6pt; }
+    .capa .meta {
+      margin-top: 12pt; font-size: 9.5pt; color: #71717a;
+    }
+
+    h2 {
+      font-size: 15pt; font-weight: 700; letter-spacing: -0.01em;
+      margin-top: 22pt; margin-bottom: 8pt;
+      padding-bottom: 5pt; border-bottom: 1.5px solid #d4d4d8;
+      break-after: avoid;
+    }
+    h2 .num {
+      display: inline-block; min-width: 20pt; color: #a1a1aa; font-weight: 600;
+    }
+    h3 {
+      font-size: 11.6pt; font-weight: 700; margin-top: 13pt; margin-bottom: 4pt;
+      break-after: avoid;
+    }
+    p { margin-top: 6pt; color: #3f3f46; }
+    strong { color: #18181b; }
+
+    ul, ol { margin: 6pt 0 0 16pt; color: #3f3f46; }
+    li { margin: 3pt 0; break-inside: avoid; }
+
+    .passos { list-style: none; margin-left: 0; counter-reset: passo; }
+    .passos li {
+      counter-increment: passo;
+      position: relative;
+      padding-left: 26pt; margin: 7pt 0;
+    }
+    .passos li::before {
+      content: counter(passo);
+      position: absolute; left: 0; top: 1pt;
+      width: 17pt; height: 17pt; border-radius: 50%;
+      background: #18181b; color: #fff;
+      font-size: 9pt; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .caixa {
+      background: #f4f4f5;
+      border-left: 3.5px solid #18181b;
+      border-radius: 4pt;
+      padding: 9pt 11pt;
+      margin-top: 10pt;
+      font-size: 10.4pt;
+      color: #3f3f46;
+      break-inside: avoid;
+    }
+    .caixa b { color: #18181b; }
+
+    .atalhos { width: 100%; border-collapse: collapse; margin-top: 9pt; font-size: 10.4pt; }
+    .atalhos th, .atalhos td {
+      border: 1px solid #d4d4d8; padding: 6pt 8pt; text-align: left; vertical-align: top;
+    }
+    .atalhos th { background: #f4f4f5; font-weight: 700; font-size: 10pt; }
+    .atalhos tr { break-inside: avoid; }
+    .tecla {
+      display: inline-block; background: #18181b; color: #fff;
+      border-radius: 4pt; padding: 1pt 6pt; font-size: 9.4pt; font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .telas { margin-top: 9pt; }
+    .tela {
+      border: 1.5px solid #d4d4d8; border-radius: 6pt;
+      padding: 10pt 12pt; margin-top: 9pt; break-inside: avoid;
+    }
+    .tela .rotulo {
+      font-size: 9pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: #71717a;
+    }
+    .tela h4 { font-size: 11.6pt; font-weight: 700; margin-top: 3pt; }
+    .tela ul { margin-top: 5pt; }
+
+    .fim {
+      margin-top: 26pt; padding-top: 12pt; border-top: 2px solid #18181b;
+      font-size: 10pt; color: #52525b;
+      display: flex; justify-content: space-between; gap: 12pt; flex-wrap: wrap;
+    }
+
+    a { color: #18181b; text-decoration: none; }
+    .quebra { break-before: page; }
+  </style>
+</head>
+<body>
+
+  <!-- ================= CAPA ================= -->
+  <header class="capa">
+    <div class="marca"><span class="bolha">♪</span> Minhas Letras</div>
+    <h1>Guia de uso</h1>
+    <p class="sub">Como usar o caderno de letras — do login até o modo palco.</p>
+    <p class="meta">Versão 1.0 · 26 de setembro de 2026 · letrasmusicas.netlify.app</p>
+  </header>
+
+  <!-- ================= 1 ================= -->
+  <h2><span class="num">1</span>O que é o Minhas Letras</h2>
+  <p>O Minhas Letras é um <strong>caderno digital de letras e cifras</strong>. Você salva as músicas que gosta e canta acompanhando a letra na tela, de dois jeitos:</p>
+  <ul>
+    <li><strong>Modo Auto</strong> — a letra rola sozinha, no ritmo que você escolher (estilo teleprompter);</li>
+    <li><strong>Modo Manual</strong> — você avança estrofe por estrofe, no seu tempo.</li>
+  </ul>
+  <p>Tudo funciona no navegador do celular ou do computador, e pode ser instalado como aplicativo. Suas letras ficam salvas na nuvem — e também uma cópia no seu aparelho, por segurança.</p>
+
+  <!-- ================= 2 ================= -->
+  <h2><span class="num">2</span>Entrando na sua conta</h2>
+  <ol class="passos">
+    <li>Abra <strong>letrasmusicas.netlify.app</strong>.</li>
+    <li>Digite seu <strong>e-mail</strong> e sua <strong>senha</strong> e toque em <strong>Entrar</strong>.</li>
+    <li>Ainda não tem conta? Toque em <strong>Criar conta</strong>, informe e-mail e senha (mínimo de 6 caracteres) e conclua o cadastro.</li>
+    <li>Pronto — a lista de letras aparece.</li>
+  </ol>
+
+  <div class="telas">
+    <div class="tela">
+      <div class="rotulo">Problemas comuns</div>
+      <h4>Esqueci minha senha</h4>
+      <ul>
+        <li>Na tela de entrada, toque em <strong>“Esqueci minha senha?”</strong>;</li>
+        <li>Informe seu e-mail — se houver conta, chega um link de redefinição;</li>
+        <li>Confira a <strong>caixa de spam</strong>. O link expira, então peça de novo se necessário.</li>
+      </ul>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Segurança</div>
+      <h4>Trocar a senha estando logado</h4>
+      <ul>
+        <li>No topo da lista, toque em <strong>Senha</strong>;</li>
+        <li>Informe a nova senha (mínimo 6 caracteres) e confirme.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ================= 3 ================= -->
+  <h2><span class="num">3</span>A tela inicial (lista)</h2>
+  <div class="telas">
+    <div class="tela">
+      <div class="rotulo">Topo</div>
+      <h4>Barra superior</h4>
+      <ul>
+        <li><strong>🔍 Buscar</strong> — digite o nome da música ou do artista; a lista filtra na hora;</li>
+        <li><strong>Nova letra</strong> — abre o formulário para adicionar uma música;</li>
+        <li><strong>Senha</strong> — troca sua senha;</li>
+        <li><strong>Sair</strong> — encerra a sessão;</li>
+        <li><strong>Instalar</strong> — aparece quando é possível instalar o app no aparelho.</li>
+      </ul>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Cards</div>
+      <h4>Cada música salva mostra</h4>
+      <ul>
+        <li><strong>▶ Cantar</strong> — abre o player;</li>
+        <li><strong>✎ Editar</strong> — corrige título, artista ou letra;</li>
+        <li><strong>🗑 Excluir</strong> — apaga (pede confirmação antes);</li>
+        <li>O número de estrofes e de linhas da letra.</li>
+      </ul>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Parte de baixo</div>
+      <h4>Barra de atalhos (dock)</h4>
+      <ul>
+        <li><strong>Letras</strong> — volta a mostrar tudo (limpa a busca);</li>
+        <li><strong>Buscar</strong> — pula direto pro campo de busca;</li>
+        <li><strong>Nova</strong> — cria uma letra;</li>
+        <li><strong>Cantar</strong> — abre a primeira música;</li>
+        <li><strong>Senha</strong> e <strong>Sair</strong> — os mesmos do topo.</li>
+      </ul>
+      <p>No rodapé ainda ficam os links de <strong>Termos de Uso</strong>, <strong>Privacidade</strong>, <strong>Cookies</strong> e este <strong>Guia de uso</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ================= 4 ================= -->
+  <h2 class="quebra"><span class="num">4</span>Salvando a primeira letra</h2>
+  <ol class="passos">
+    <li>Toque em <strong>Nova letra</strong> (botão do topo ou ✛ do dock).</li>
+    <li>Preencha <strong>Título da música</strong> e <strong>Artista / Banda</strong>.</li>
+    <li>Cole ou digite a <strong>letra</strong> no campo grande.</li>
+    <li><strong>Deixe uma linha em branco entre cada estrofe</strong> — é isso que separa os blocos no modo Manual.</li>
+    <li>Toque em <strong>Salvar letra</strong>. Pronto: ela já aparece na lista e no contador.</li>
+  </ol>
+  <div class="caixa">
+    <b>Dica:</b> se a internet cair na hora de salvar, o Minhas Letras avisa que a letra ficou <b>só neste aparelho</b>. Não se preocupe — ela continua lá e você pode editar de novo depois, quando a conexão voltar, para enviar pra nuvem.
+  </div>
+  <div class="caixa">
+    <b>Para editar ou excluir:</b> na lista, use os ícones do card. A exclusão pede confirmação e <b>não pode ser desfeita</b>.
+  </div>
+
+  <!-- ================= 5 ================= -->
+  <h2 class="quebra"><span class="num">5</span>Modo Auto — rolagem automática</h2>
+  <p>É o modo padrão: a letra rola sozinha de cima pra baixo, como um teleprompter.</p>
+
+  <div class="telas">
+    <div class="tela">
+      <div class="rotulo">Controles (aparecem no topo)</div>
+      <h4>▶/⏸ e velocidade</h4>
+      <ul>
+        <li><strong>Botão redondo ▶</strong> — começa a rolagem; vira ⏸ para pausar;</li>
+        <li><strong>Velocidade</strong> — barra deslizante de <strong>10 a 120</strong>. Quanto maior o número, mais rápido a letra sobe;</li>
+        <li>O número ao lado da barra mostra a velocidade atual.</li>
+      </ul>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Comportamento</div>
+      <h4>O que acontece quando a letra acaba</h4>
+      <ul>
+        <li>Ao chegar no fim, o player <strong>para sozinho</strong> e <strong>abre a próxima música</strong> da lista;</li>
+        <li>Você pode tocar em <strong>⏸</strong> ou apertar <strong>espaço</strong> a qualquer momento;</li>
+        <li>Se estiver no fim da letra e tocar ▶ de novo, ele <strong>volta ao começo</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="caixa">
+    <b>Sem distração:</b> com a rolagem rolando, a barra do fundo (partículas) fica mais viva; quando você pausa, ela acalma. É só um detalhe visual — nada que atrapalhe a leitura.
+  </div>
+
+  <!-- ================= 6 ================= -->
+  <h2><span class="num">6</span>Modo Manual — estrofe por estrofe</h2>
+  <ol class="passos">
+    <li>No topo do player, toque em <strong>Manual</strong>.</li>
+    <li>A tela mostra <strong>uma estrofe inteira</strong> de cada vez, bem grande.</li>
+    <li><strong>Avançar:</strong> toque em qualquer lugar da letra ou aperte <strong>Espaço</strong> / <strong>seta ↓</strong>.</li>
+    <li><strong>Voltar:</strong> <strong>seta ↑</strong> ou <strong>Backspace</strong>.</li>
+    <li>No canto de baixo aparece o contador <strong>“3 / 8”</strong> — a estrofe atual e o total.</li>
+  </ol>
+  <div class="caixa">
+    <b>Letra grande demais?</b> O modo Manual <b>ajusta o tamanho da fonte sozinho</b> até caber inteira na tela. Se ainda assim ficar apertado, gire o celular na horizontal ou use o modo Tela cheia.
+  </div>
+  <div class="caixa">
+    <b>Última estrofe + avançar</b> = abre a próxima música automaticamente.
+  </div>
+
+  <!-- ================= 7 ================= -->
+  <h2 class="quebra"><span class="num">7</span>Modo Palco e Tela cheia</h2>
+  <div class="telas">
+    <div class="tela">
+      <div class="rotulo">Tela cheia</div>
+      <h4>Sem barras do navegador</h4>
+      <ul>
+        <li>Toque em <strong>Tela cheia</strong> (topo do player);</li>
+        <li>Para sair, toque em <strong>Sair da tela</strong> ou use <strong>Esc</strong>;</li>
+        <li>No celular, funciona melhor junto com o modo Palco.</li>
+      </ul>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Modo palco</div>
+      <h4>Só a letra, nada mais</h4>
+      <ul>
+        <li>Toque em <strong>Palco</strong> (topo do player);</li>
+        <li>As barras e os controles <strong>somem</strong>, as partículas de fundo ficam mais fracas e a <strong>letra cresce cerca de 30%</strong>;</li>
+        <li><strong>Modo Auto no palco:</strong> toque em qualquer lugar da tela para <strong>pausar/continuar</strong>;</li>
+        <li><strong>Modo Manual no palco:</strong> toque para <strong>avançar</strong> a estrofe;</li>
+        <li><strong>Sair:</strong> o ✕ no canto superior direito ou a tecla <strong>Esc</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ================= 8 ================= -->
+  <h2><span class="num">8</span>Atalhos de teclado (computador)</h2>
+  <table class="atalhos">
+    <thead>
+      <tr><th style="width:34%">Tecla</th><th>O que faz</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tecla">Espaço</span></td><td>Modo Auto: pausa/continua · Modo Manual: avança a estrofe</td></tr>
+      <tr><td><span class="tecla">Seta ↓</span></td><td>Modo Manual: avança a estrofe</td></tr>
+      <tr><td><span class="tecla">Seta ↑</span></td><td>Modo Manual: volta uma estrofe</td></tr>
+      <tr><td><span class="tecla">Backspace</span></td><td>Modo Manual: volta uma estrofe</td></tr>
+      <tr><td><span class="tecla">Esc</span></td><td>Se estiver no Palco, sai do Palco; senão, fecha o player</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ================= 9 ================= -->
+  <h2 class="quebra"><span class="num">9</span>Instalando no celular (e no computador)</h2>
+  <ol class="passos">
+    <li>Abra o Minhas Letras e faça login.</li>
+    <li>No topo da lista, toque em <strong>Instalar</strong> (quando o botão aparecer).</li>
+    <li>Confirme — o ícone do <strong>Minhas Letras</strong> fica na tela do celular, ao lado dos outros apps.</li>
+    <li>Ao abrir pelo ícone, o site abre <strong>em tela cheia, sem barra de navegador</strong>.</li>
+  </ol>
+  <div class="caixa">
+    <b>Não apareceu o botão Instalar?</b> No Android, abra o menu do navegador e escolha <strong>“Adicionar à tela inicial”</strong>. No iPhone (Safari), toque no botão de <strong>compartilhar</strong> e depois em <strong>“Adicionar à Tela de Início”</strong>.
+  </div>
+
+  <!-- ================= 10 ================= -->
+  <h2><span class="num">10</span>Quando algo dá errado</h2>
+  <div class="telas">
+    <div class="tela">
+      <div class="rotulo">Aviso</div>
+      <h4>“Não consegui carregar da nuvem — mostrando as letras deste aparelho”</h4>
+      <p>Sem internet (ou com o serviço da nuvem fora do ar). O site continua funcionando com as letras guardadas <strong>neste aparelho</strong>. Assim que a conexão voltar, entre de novo para sincronizar.</p>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Aviso</div>
+      <h4>“Letra salva só neste aparelho”</h4>
+      <p>A nuvem recusou ou estava indisponível no momento do salvamento. A música está salva localmente; edite e salve de novo depois para enviá-la.</p>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Tela</div>
+      <h4>“Essa tela é pequena demais pra cantar!”</h4>
+      <p>O aparelho está com a tela pequena (ou girada) demais para o player. Use o celular na vertical ou o computador.</p>
+    </div>
+    <div class="tela">
+      <div class="rotulo">Player</div>
+      <h4>“Essa não está no repertório”</h4>
+      <p>A música foi excluída ou o link não existe mais. Volte pra lista e escolha outra.</p>
+    </div>
+  </div>
+
+  <!-- ================= 11 ================= -->
+  <h2><span class="num">11</span>Suas letras e sua privacidade</h2>
+  <ul>
+    <li>Suas letras ficam no <strong>Supabase</strong> (nuvem) e em <strong>cópia local</strong> no seu aparelho;</li>
+    <li>Não tem anúncio, não tem rastreador e <strong>não vendemos seus dados</strong>;</li>
+    <li>Você pode <strong>excluir</strong> qualquer letra quando quiser;</li>
+    <li>Para os detalhes, leia a <strong>Política de Privacidade</strong> e os <strong>Termos de Uso</strong> (links no rodapé do site).</li>
+  </ul>
+
+  <div class="fim">
+    <div><strong>Minhas Letras</strong> — guia de uso · versão 1.0 · 26/09/2026</div>
+    <div>letrasmusicas.netlify.app</div>
+  </div>
+
+</body>
+</html>

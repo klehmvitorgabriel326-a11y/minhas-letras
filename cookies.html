@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Política de Cookies — Minhas Letras</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ccircle cx='256' cy='256' r='152' fill='%23fafafa'/%3E%3Ctext x='256' y='320' font-family='Verdana' font-size='200' font-weight='800' text-anchor='middle' fill='%23000000'%3E%E2%99%AA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="legal.css">
+</head>
+<body>
+
+  <header class="legal-top">
+    <a class="voltar" href="index.html">← Voltar pro Minhas Letras</a>
+    <h1>Política de Cookies</h1>
+    <p class="sub">Spoiler: o Minhas Letras quase não usa cookies. Entenda o porquê.</p>
+    <span class="atualizado">Vigente desde 26 de setembro de 2026</span>
+  </header>
+
+  <nav class="sumario" aria-label="Sumário">
+    <b>Nesta página</b>
+    <ol>
+      <li><a href="#o-que-sao">O que são cookies</a></li>
+      <li><a href="#nao-usamos">O que o site NÃO usa</a></li>
+      <li><a href="#usamos">O que o site usa no lugar</a></li>
+      <li><a href="#terceiros">Serviços de terceiros</a></li>
+      <li><a href="#gerenciar">Como gerenciar no seu navegador</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="o-que-sao">
+      <h2>1. O que são cookies</h2>
+      <p>Cookie é um pedacinho de texto que um site guarda no seu navegador para lembrar de alguma coisa — login, preferências, etc. Existe também o <strong>armazenamento local (localStorage)</strong>, que faz parecido, mas é guardado no seu navegador e não é enviado automaticamente a cada visita.</p>
+      </section>
+
+    <section id="nao-usamos">
+      <h2>2. O que o site NÃO usa</h2>
+      <div class="destaque"><strong>O Minhas Letras não usa cookies de publicidade, de rastreamento ou de terceiros para anúncios.</strong></div>
+      <p>Conferido direto no código do site, ele <strong>não</strong> tem:</p>
+      <ul>
+        <li>Google Analytics, Meta Pixel, Hotjar, Microsoft Clarity ou qualquer ferramenta de análise;</li>
+        <li>Redes sociais embutidas que te seguem por aí;</li>
+        <li>Publicidade comportamental (aquele anúncio que “segue” você);</li>
+        <li>Cookie de consentimento (banner de cookies) — porque não há cookies de terceiros que precisem de aviso.</li>
+      </ul>
+    </section>
+
+    <section id="usamos">
+      <h2>3. O que o site usa no lugar</h2>
+      <p>O Minhas Letras guarda a sua sessão e suas letras no <strong>armazenamento local do navegador (localStorage)</strong> e no <strong>Supabase</strong>:</p>
+      <ul>
+        <li><strong><code>ml_sessao</code></strong> — lembra que você está logado para não digitar senha toda vez;</li>
+        <li><strong><code>ml_user_id</code></strong> — identificador da sua conta, usado para cruzar a cópia local com a da nuvem;</li>
+        <li><strong><code>ml_letras</code></strong> — cópia local das suas letras, para o modo offline/fallback;</li>
+        <li><strong>Sessão do Supabase</strong> — token de acesso guardado no navegador para manter o login;</li>
+        <li><strong>Manifesto do app (PWA)</strong> — gerado em memória quando você instala o site no celular.</li>
+      </ul>
+      <p>Nada disso é usado para rastrear você em outros sites — serve <strong>só para o Minhas Letras funcionar</strong>.</p>
+    </section>
+
+    <section id="terceiros">
+      <h2>4. Serviços de terceiros</h2>
+      <p>Ao abrir o site, seu navegador carrega recursos de terceiros, que podem registrar o acesso técnico (IP, user agent):</p>
+      <ul>
+        <li><strong>Google Fonts</strong> (fonts.googleapis.com / fonts.gstatic.com) — fonte do site;</li>
+        <li><strong>cdnjs</strong> (cdnjs.cloudflare.com) — biblioteca Three.js do fundo animado;</li>
+        <li><strong>jsDelivr</strong> (cdn.jsdelivr.net) — biblioteca do Supabase;</li>
+        <li><strong>Netlify</strong> — hospedagem dos arquivos do site;</li>
+        <li><strong>Supabase</strong> — banco de dados e login.</li>
+      </ul>
+      <p>Esses serviços têm regras próprias de privacidade. Vale conferir as políticas de cada um.</p>
+    </section>
+
+    <section id="gerenciar">
+      <h2>5. Como gerenciar no seu navegador</h2>
+      <ul>
+        <li><strong>Limpar dados do site</strong> — nas configurações do navegador, apague os dados de letrasmusicas.netlify.app. Isso apaga o login e a cópia local das letras (as letras salvas na nuvem continuam lá);</li>
+        <li><strong>Modo anônimo</strong> — nada fica salvo depois de fechar a aba;</li>
+        <li><strong>Bloquear terceiros</strong> — você pode bloquear fontes/CDNs; nesse caso o site pode ficar com a fonte padrão ou sem o fundo animado, mas continua funcionando.</li>
+      </ul>
+      <p>Se você apagar o armazenamento local, basta entrar de novo na sua conta para ver suas letras.</p>
+    </section>
+
+  </main>
+
+  <footer class="legal-foot">
+    <span>© 2026 Minhas Letras</span>
+    <a href="index.html">Início</a>
+    <a href="termos.html">Termos de Uso</a>
+    <a href="privacidade.html">Privacidade</a>
+    <a href="cookies.html">Cookies</a>
+  </footer>
+
+</body>
+</html>

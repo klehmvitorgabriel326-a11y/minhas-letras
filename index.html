@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Minhas Letras</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ccircle cx='256' cy='256' r='152' fill='%23fafafa'/%3E%3Ctext x='256' y='320' font-family=%22Google Sans Flex, Verdana%22 font-size='200' font-weight='800' text-anchor='middle' fill='%23000000'%3E%E2%99%AA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_back,check_circle,close,dark_mode,delete,download,edit,fullscreen,groups,history,light_mode,lock,logout,music_note,music_video,pause,person,picture_as_pdf,play_arrow,radio_button_checked,search,share,tv,upload&display=block">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============ FUNDO PARTICLE WAVE (atrás de tudo) ============ -->
+  <canvas id="particle-wave" aria-hidden="true"></canvas>
+
+  <!-- ============ VIEW LOGIN ============ -->
+  <div id="view-login">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="logo-box"><span class="msi">music_note</span></div>
+        <div>
+          <h1>Minhas Letras</h1>
+          <p>Seu caderno de cifras</p>
+        </div>
+      </div>
+      <h2>Entrar</h2>
+      <p class="auth-sub">Bora cantar? É só entrar.</p>
+      <form id="form-login" novalidate>
+        <div class="field" id="f-login-usuario">
+          <label for="i-login-usuario">E-mail</label>
+          <input type="email" id="i-login-usuario" autocomplete="email" placeholder="Seu e-mail">
+          <p class="err">Informe o e-mail.</p>
+        </div>
+        <div class="field" id="f-login-senha">
+          <label for="i-login-senha">Senha</label>
+          <input type="password" id="i-login-senha" autocomplete="current-password" placeholder="Sua senha">
+          <p class="err">Informe a senha.</p>
+        </div>
+        <button type="submit" class="btn-auth">Entrar</button>
+        <a href="#" id="link-esqueci" class="link-esqueci">Esqueci minha senha?</a>
+      </form>
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-foot">
+        Ainda não tem conta? <a id="link-registro">Criar conta</a>
+      </div>
+      <div class="auth-legal">
+        <a href="guia-como-usar.pdf" target="_blank" rel="noopener">Guia de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a>
+        <span aria-hidden="true">·</span>
+        <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW REGISTRO ============ -->
+  <div id="view-registro" class="hidden">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="logo-box"><span class="msi">music_note</span></div>
+        <div>
+          <h1>Minhas Letras</h1>
+          <p>Criar conta</p>
+        </div>
+      </div>
+      <h2>Nova conta</h2>
+      <p class="auth-sub">Rapidinho: e-mail, senha e pronto.</p>
+      <form id="form-registro" novalidate>
+        <div class="field" id="f-reg-usuario">
+          <label for="i-reg-usuario">E-mail</label>
+          <input type="email" id="i-reg-usuario" autocomplete="email" placeholder="Ex.: pai@email.com">
+          <p class="err">Informe um e-mail válido.</p>
+        </div>
+        <div class="field" id="f-reg-senha">
+          <label for="i-reg-senha">Senha</label>
+          <input type="password" id="i-reg-senha" autocomplete="new-password" placeholder="Escolha uma senha">
+          <p class="err">Senha precisa ter pelo menos 6 caracteres.</p>
+        </div>
+        <div class="field" id="f-reg-confirma">
+          <label for="i-reg-confirma">Confirmar senha</label>
+          <input type="password" id="i-reg-confirma" autocomplete="new-password" placeholder="Repita a senha">
+          <p class="err">As senhas não coincidem.</p>
+        </div>
+        <button type="submit" class="btn-auth">Criar conta</button>
+      </form>
+      <div class="auth-error" id="registro-error"></div>
+      <div class="auth-foot">
+        Já tem conta? <a id="link-login">Fazer login</a>
+      </div>
+      <div class="auth-legal">
+        <a href="guia-como-usar.pdf" target="_blank" rel="noopener">Guia de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a>
+        <span aria-hidden="true">·</span>
+        <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW ESQUECI MINHA SENHA ============ -->
+  <div id="view-esqueci" class="hidden">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="logo-box"><span class="msi">music_note</span></div>
+        <div>
+          <h1>Minhas Letras</h1>
+          <p>Seu caderno de cifras</p>
+        </div>
+      </div>
+      <h2>Esqueci minha senha</h2>
+      <p class="auth-sub">Bora resolver? Digita seu e-mail e te mandamos um link.</p>
+      <form id="form-esqueci" novalidate>
+        <div class="field" id="f-esqueci-email">
+          <label for="i-esqueci-email">E-mail</label>
+          <input type="email" id="i-esqueci-email" autocomplete="email" placeholder="Seu e-mail de cadastro">
+          <p class="err">Informe um e-mail válido.</p>
+        </div>
+        <button type="submit" class="btn-auth">Enviar link de recuperação</button>
+      </form>
+      <div class="auth-error" id="esqueci-error"></div>
+      <div class="auth-ok" id="esqueci-ok"></div>
+      <div class="auth-foot">
+        Lembrou a senha? <a id="link-esqueci-voltar">Fazer login</a>
+      </div>
+      <div class="auth-legal">
+        <a href="guia-como-usar.pdf" target="_blank" rel="noopener">Guia de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a>
+        <span aria-hidden="true">·</span>
+        <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW REDEFINIR SENHA ============ -->
+  <div id="view-redefinir" class="hidden">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="logo-box"><span class="msi">music_note</span></div>
+        <div>
+          <h1>Minhas Letras</h1>
+          <p>Seu caderno de cifras</p>
+        </div>
+      </div>
+      <h2>Criar nova senha</h2>
+      <p class="auth-sub">Último passo: escolhe uma senha nova e confirma.</p>
+      <form id="form-redefinir" novalidate>
+        <div class="field" id="f-red-senha">
+          <label for="i-red-senha">Nova senha</label>
+          <input type="password" id="i-red-senha" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+          <p class="err">Senha precisa ter pelo menos 6 caracteres.</p>
+        </div>
+        <div class="field" id="f-red-confirma">
+          <label for="i-red-confirma">Confirmar senha</label>
+          <input type="password" id="i-red-confirma" autocomplete="new-password" placeholder="Repita a senha">
+          <p class="err">As senhas não coincidem.</p>
+        </div>
+        <button type="submit" class="btn-auth">Salvar nova senha</button>
+      </form>
+      <div class="auth-error" id="redefinir-error"></div>
+      <div class="auth-foot">
+        <a id="link-redefinir-voltar">Voltar pra entrada</a>
+      </div>
+      <div class="auth-legal">
+        <a href="guia-como-usar.pdf" target="_blank" rel="noopener">Guia de uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a>
+        <span aria-hidden="true">·</span>
+        <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a>
+        <span aria-hidden="true">·</span>
+        <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW LISTA ============ -->
+  <div id="view-list" class="hidden">
+    <header>
+      <div class="brand">
+        <div class="logo-box"><span class="msi">music_note</span></div>
+        <div>
+          <h1>Minhas Letras</h1>
+          <p>Seu caderno de cifras</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost hidden" id="btn-instalar"><span class="msi" style="font-size:17px">download</span> Instalar</button>
+        <button class="btn btn-primary" id="btn-nova"><span class="msi" style="font-size:17px">add</span> <span class="btn-label">Nova letra</span></button>
+        <button class="btn btn-ghost" id="btn-acessos" aria-label="Histórico de acessos" title="Histórico de acessos"><span class="msi" style="font-size:17px">history</span> <span class="btn-label">Acessos</span></button>
+        <button class="btn btn-ghost" id="btn-trocar-senha"><span class="msi" style="font-size:17px">lock</span> Senha</button>
+        <button class="btn btn-ghost" id="btn-tema" aria-label="Alternar tema" title="Tema (claro/escuro)"><span class="msi" style="font-size:17px">light_mode</span></button>
+        <button class="btn-sair" id="btn-sair"><span class="msi" style="font-size:15px">logout</span> Sair</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-ico msi" style="font-size:18px">search</span>
+          <input type="text" id="busca" placeholder="Buscar música, artista ou tag...">
+        </div>
+        <div class="toolbar-right">
+          <select id="ordem-select" class="ordem-select" aria-label="Ordenar letras" title="Ordenar">
+            <option value="criado_em">Ordem de criação</option>
+            <option value="titulo_az">Título A–Z</option>
+            <option value="titulo_za">Título Z–A</option>
+            <option value="recente">Mais recentes</option>
+            <option value="antiga">Mais antigas</option>
+            <option value="estrofes_mais">Mais estrofes</option>
+            <option value="estrofes_menos">Menos estrofes</option>
+            <option value="manual">Minha ordem (arraste)</option>
+          </select>
+          <button class="btn btn-ghost" id="btn-exportar" aria-label="Exportar backup" title="Exportar backup (JSON)"><span class="msi" style="font-size:17px">upload</span></button>
+          <button class="btn btn-ghost" id="btn-importar" aria-label="Importar backup" title="Importar backup (JSON)"><span class="msi" style="font-size:17px">download</span></button>
+          <input type="file" id="input-importar" accept=".json" class="hidden" aria-hidden="true">
+          <span class="count" id="contador"></span>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <footer class="site-foot">
+        <span>© 2026 Minhas Letras</span>
+        <nav aria-label="Links legais">
+          <a href="guia-como-usar.pdf" target="_blank" rel="noopener">Guia de uso</a>
+          <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a>
+          <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a>
+          <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
+        </nav>
+      </footer>
+    </main>
+
+    <!-- ============ HERO DOCK (adaptado p/ Minhas Letras) ============ -->
+    <nav class="hero-dock" id="hero-dock" aria-label="Atalhos rápidos">
+      <div class="dock-bar">
+        <button type="button" class="dock-item" data-dock="letras" aria-label="Minhas letras">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <path d="M9 22V12h6v10"/>
+          </svg>
+          <span class="dock-badge hidden" id="dock-badge">0</span>
+          <span class="dock-tip">Letras</span>
+        </button>
+
+        <button type="button" class="dock-item" data-dock="buscar" aria-label="Buscar música">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+          <span class="dock-tip">Buscar</span>
+        </button>
+
+        <button type="button" class="dock-item" data-dock="nova" aria-label="Nova letra">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/>
+            <path d="M12 5v14"/>
+          </svg>
+          <span class="dock-tip">Nova letra</span>
+        </button>
+
+        <button type="button" class="dock-item" data-dock="cantar" aria-label="Cantar primeira música">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+          <span class="dock-tip">Cantar</span>
+        </button>
+
+        <span class="dock-divider" aria-hidden="true"></span>
+
+        <button type="button" class="dock-item" data-dock="senha" aria-label="Trocar senha">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span class="dock-tip">Senha</span>
+        </button>
+
+        <button type="button" class="dock-item" data-dock="sair" aria-label="Sair">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" x2="9" y1="12" y2="12"/>
+          </svg>
+          <span class="dock-tip">Sair</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ============ VIEW PLAYER ============ -->
+  <div id="view-player" class="hidden">
+    <div class="player-top">
+      <div class="pt-left">
+        <button class="btn-back" id="btn-voltar" aria-label="Voltar"><span class="msi">arrow_back</span></button>
+        <div class="pt-info">
+          <div class="titulo" id="info-titulo">—</div>
+          <div class="artista" id="info-artista">—</div>
+        </div>
+      </div>
+      <div class="pt-right">
+        <div class="mode-toggle">
+          <button data-modo="auto" id="modo-auto" class="active">Auto</button>
+          <button data-modo="manual" id="modo-manual">Manual</button>
+        </div>
+        <button class="btn-ghost" id="btn-cifra" aria-label="Modo cifra (acordes)" title="Modo cifra (C)"><span class="msi" style="font-size:17px">music_note</span></button>
+        <button class="btn-ghost" id="btn-tv" aria-label="Abrir na 2ª tela (TV)" title="2ª tela / TV — abre em outra janela"><span class="msi" style="font-size:17px">tv</span></button>
+        <button class="btn-ghost" id="btn-sala" aria-label="Sala de ensaio (banda)" title="Sala de ensaio — sincroniza com a banda"><span class="msi" style="font-size:17px">groups</span></button>
+        <button class="btn-ghost" id="btn-referencia" aria-label="Referência YouTube/Spotify" title="Referência — YouTube ou Spotify"><span class="msi" style="font-size:17px">music_video</span></button>
+        <button class="btn-ghost" id="btn-compartilhar" aria-label="Compartilhar letra" title="Compartilhar link público"><span class="msi" style="font-size:17px">share</span></button>
+        <div class="transpose-group" id="transpose-group" style="display:none;">
+          <button class="btn-ghost btn-sm" id="btn-transpose-down" aria-label="Transpor -1 semitom" title="Tom -1 ([)">−</button>
+          <span class="transpose-value" id="transpose-value">0</span>
+          <button class="btn-ghost btn-sm" id="btn-transpose-up" aria-label="Transpor +1 semitom" title="Tom +1 (])">+</button>
+        </div>
+        <button class="btn-ghost" id="btn-fullscreen"><span class="msi" style="font-size:17px">fullscreen</span> <span id="fs-label">Tela cheia</span></button>
+        <button class="btn-ghost" id="btn-palco" aria-pressed="false" aria-label="Modo palco">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 4h18"/>
+            <path d="M4 4c3 4 3 12 0 16"/>
+            <path d="M20 4c-3 4-3 12 0 16"/>
+          </svg>
+          <span id="palco-label">Palco</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="auto-controls hidden" id="auto-controls">
+      <button class="btn-play msi" id="btn-play" aria-label="Tocar ou pausar">play_arrow</button>
+      <div class="speed-group">
+        <span>Velocidade</span>
+        <input type="range" class="speed-slider" id="speed" min="10" max="120" step="5" value="35">
+        <span class="speed-label" id="speed-label">35</span>
+      </div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div id="view-notfound" class="not-found hidden">
+        <h2>Essa não está no repertório</h2>
+        <p>Ou saiu do caderno, ou nunca esteve nele.</p>
+      </div>
+    </div>
+
+    <!-- Sair do modo palco — flutuante, escondido quando o palco está desligado -->
+    <button id="btn-sair-palco" class="hidden" aria-label="Sair do modo palco"><span class="msi">close</span></button>
+  </div>
+
+  <!-- ============ MODAL NOVA/EDITAR ============ -->
+  <div class="modal-overlay hidden" id="modal-form">
+    <div class="modal">
+      <h3 id="modal-title">Nova letra</h3>
+      <p class="modal-sub" id="modal-sub">Cola a letra aqui — o resto é com a gente.</p>
+      <form id="form-letra" novalidate>
+        <div class="field" id="f-titulo">
+          <label for="i-titulo">Título da música</label>
+          <input type="text" id="i-titulo" placeholder="Ex.: Asa Branca">
+          <p class="err">Informe o título.</p>
+        </div>
+        <div class="field" id="f-artista">
+          <label for="i-artista">Artista / Banda</label>
+          <input type="text" id="i-artista" placeholder="Ex.: Luiz Gonzaga">
+          <p class="err">Informe o artista.</p>
+        </div>
+        <div class="field" id="f-tags">
+          <label for="i-tags">Tags (separadas por vírgula)</label>
+          <input type="text" id="i-tags" placeholder="Ex.: forró, luiz gonzaza, clássicos, ensaio">
+          <p class="hint">Use tags pra organizar: gênero, momento, setlist, etc.</p>
+        </div>
+        <div class="field" id="f-referencia">
+          <label for="i-referencia">Link de referência (YouTube / Spotify)</label>
+          <input type="url" id="i-referencia" placeholder="https://youtu.be/... ou https://open.spotify.com/track/...">
+          <p class="hint">Cole o link do YouTube ou Spotify — abre no player pra sincronizar com a letra.</p>
+        </div>
+        <div class="field" id="f-letra">
+          <label for="i-letra">Letra</label>
+          <textarea id="i-letra" placeholder="Cole ou digite a letra aqui...&#10;&#10;Dica: deixe uma linha em branco entre cada estrofe.&#10;Para cifras: coloque a linha de acordes ANTES da linha de letra (ex.: [C] [F] [G] ou | C | F | G |)."></textarea>
+          <p class="err">Cole ou digite a letra.</p>
+          <p class="hint">Separe as estrofes com uma linha em branco — fica melhor na hora de cantar.</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancelar">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-salvar">Salvar letra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODAL EXCLUIR ============ -->
+  <div class="modal-overlay hidden" id="modal-excluir">
+    <div class="modal small">
+      <h3>Excluir letra?</h3>
+      <p class="modal-sub" id="modal-excluir-text">Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-cancelar-exclusao">Cancelar</button>
+        <button class="btn btn-danger" id="btn-confirmar-exclusao">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL HISTÓRICO DE ACESSOS ============ -->
+  <div class="modal-overlay hidden" id="modal-acessos">
+    <div class="modal small">
+      <h3>Histórico de acessos</h3>
+      <p class="modal-sub" id="acessos-sub">Últimos logins com data e aparelho.</p>
+      <div class="acessos-lista" id="acessos-lista"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-fechar-acessos">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL 2ª TELA / TV (entre aparelhos) ============ -->
+  <div class="modal-overlay hidden" id="modal-tv">
+    <div class="modal small">
+      <h3>2ª tela / TV</h3>
+      <p class="modal-sub" id="tv-sub">Abre a letra em outra janela <b>aqui</b> — ou aponta o celular no QR / copia o link pra abrir <b>noutro aparelho</b> (TV, celular, outro PC) logado na mesma conta.</p>
+      <div class="field" id="tv-campo-link" style="display:none;">
+        <label for="tv-link">Link pro outro aparelho</label>
+        <input type="text" id="tv-link" readonly placeholder="gerando link…">
+        <p class="tv-aviso" id="tv-aviso">Esse link dá acesso à sua conta — é como uma senha. Só manda pra aparelho seu.</p>
+        <p class="tv-aviso" id="tv-aviso-host" style="display:none;">Seu site não está publicado agora, então esse link só abre <b>nesta rede/máquina</b>. Publica no Netlify pra usar de qualquer lugar.</p>
+      </div>
+      <div class="tv-qr-area hidden" id="tv-qr-area">
+        <canvas id="tv-qr-canvas" width="130" height="130" aria-label="QR Code do link"></canvas>
+        <p class="tv-aviso">Aponta o celular pro QR — abre a 2ª tela direto.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="tv-fechar">Fechar</button>
+        <button class="btn btn-success" id="tv-copiar" style="display:none;">Copiar link</button>
+        <button class="btn btn-primary" id="tv-abrir">Abrir 2ª tela aqui</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL SALA DE ENSAIO (banda) ============ -->
+  <div class="modal-overlay hidden" id="modal-sala">
+    <div class="modal small">
+      <h3>Sala de ensaio</h3>
+      <p class="modal-sub">Sincroniza a letra com a banda — todo mundo vê a mesma estrofe no mesmo tempo.</p>
+
+      <!-- Criar / Entrar (escondido quando já está em sala) -->
+      <div id="sala-criar-entrar">
+        <div class="field">
+          <label>Entrar com código</label>
+          <div class="sala-codigo-row">
+            <input type="text" id="sala-codigo-input" maxlength="4" placeholder="ABCD" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn btn-primary" id="sala-entrar">Entrar</button>
+          </div>
+          <p class="hint">Pegue o código com quem criou a sala.</p>
+        </div>
+        <div class="modal-actions" style="justify-content:space-between;">
+          <button class="btn btn-ghost" id="sala-cancelar">Cancelar</button>
+          <button class="btn btn-success" id="sala-criar"><span class="msi" style="font-size:17px">add</span> Criar sala</button>
+        </div>
+      </div>
+
+      <!-- Sala ativa -->
+      <div id="sala-ativa" class="hidden">
+        <div class="sala-codigo-box">
+          <span class="sala-codigo-label">Código da sala</span>
+          <span class="sala-codigo" id="sala-codigo">—</span>
+        </div>
+        <div class="sala-status" id="sala-status"></div>
+        <div class="sala-participantes" id="sala-participantes"></div>
+        <p class="hint">Manda o código pro pessoal. Eles entram pelo mesmo botão.</p>
+        <div class="modal-actions">
+          <button class="btn btn-danger" id="sala-fechar">Sair da sala</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SIDEBAR REFERÊNCIA (YouTube / Spotify) ============ -->
+  <div id="ref-sidebar" class="hidden">
+    <div class="ref-header">
+      <h3>Referência</h3>
+      <button class="btn-ghost btn-sm" id="ref-fechar" aria-label="Fechar referência"><span class="msi">close</span></button>
+    </div>
+    <div class="ref-body">
+      <div class="field">
+        <label for="ref-link">Link do vídeo / faixa</label>
+        <input type="url" id="ref-link" placeholder="https://youtu.be/... ou https://open.spotify.com/track/...">
+        <div class="ref-link-actions">
+          <button class="btn btn-primary btn-sm" id="ref-salvar">Salvar</button>
+        </div>
+      </div>
+      <iframe id="ref-iframe" class="hidden" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="Referência"></iframe>
+      <div class="ref-sync-row">
+        <button class="btn btn-success btn-sm" id="ref-marcar">Marcar</button>
+        <button class="btn btn-ghost btn-sm" id="ref-sync">Sync OFF</button>
+        <button class="btn btn-ghost btn-sm" id="ref-limpar">Limpar</button>
+      </div>
+      <p class="hint">Dê <b>play</b> no vídeo e aperte <b>Marcar</b> quando cada estrofe começar. Com as marcas prontas, liga o <b>Sync</b> e a letra acompanha o vídeo.</p>
+      <div id="ref-markers"></div>
+    </div>
+  </div>
+
+  <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="aviso-tela-pequena" role="note">Essa tela é pequena demais pra cantar! Abre o Minhas Letras no celular ou no computador.</div>
+
+  <!-- Three.js via CDN (sem npm/build — mantém o site vanilla) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // ============ FUNDO PARTICLE WAVE ============
+    // Onda de partículas em 3D no fundo de todas as telas.
+    // Reescrito em JS puro a partir do componente React + Three.js.
+    (function initParticleWave() {
+      'use strict';
+
+      var canvas = document.getElementById('particle-wave');
+      // Se o CDN do Three falhar (sem internet), o site segue normal sem o fundo
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      var scene, camera, renderer, particles, particleMaterial;
+      var animationId = null;
+      var mouse = new THREE.Vector2(-10, -10);
+      // Posição do mouse NO plano das partículas (projeção via raycaster)
+      var mouseWorld = new THREE.Vector3(9999, 0, 9999);
+      var raycaster = new THREE.Raycaster();
+      // Plano y=0 onde as partículas "flutuam"
+      var groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+      // ===== PERF (celular fraco): detecta dispositivo pesado =====
+      // coarse = tela de toque; cores <=4 = CPU básica
+      var isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      var cores = navigator.hardwareConcurrency || 4;
+      var isLowEnd = isCoarse || cores <= 4;
+
+      // Coordenadas do ponteiro "pendentes" — raycast 1x por frame (não por evento)
+      var pendingPX = null;
+      var pendingPY = null;
+
+      // Cor das partículas: tom quente (creme) pra combinar com o tema do Minhas Letras
+      function getParticleColor() {
+        return new THREE.Vector3(0.95, 0.92, 0.85);
+      }
+
+      // Onda + interação com o mouse:
+      // - uTime move a onda
+      // - uMouse empurra/eleva as partículas perto do cursor
+      var particleVertex = [
+        'attribute float scale;',
+        'uniform float uTime;',
+        'uniform float uIntensity;',
+        'uniform vec3 uMouse;',
+        'void main() {',
+        '  vec3 p = position;',
+        '  float s = scale;',
+        '  // Onda base — amplitude controlada pela intensidade do player',
+        '  float wave = (sin(p.x + uTime) * 0.5) + (cos(p.y + uTime) * 0.1) * 2.0;',
+        '  p.y += wave * uIntensity;',
+        '  p.x += (sin(p.y + uTime) * 0.5) * uIntensity;',
+        '  // Interação mouse: distância no plano XZ',
+        '  float dist = distance(p.xz, uMouse.xz);',
+        '  // Elevação suave (morre em ~4 unidades de raio)',
+        '  float bump = exp(-dist * dist * 0.35) * 2.2;',
+        '  p.y += bump;',
+        '  // Empurrão lateral (afasta do cursor)',
+        '  vec2 dir = (dist > 0.001) ? normalize(p.xz - uMouse.xz) : vec2(0.0);',
+        '  p.xz += dir * bump * 0.45;',
+        '  s += bump * 0.8;',
+        '  s += wave * uIntensity;',
+        '  vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);',
+        '  gl_PointSize = s * 15.0 * (1.0 / -mvPosition.z);',
+        '  gl_Position = projectionMatrix * mvPosition;',
+        '}'
+      ].join('\n');
+
+      // Fragmento: cor da partícula com alpha baixo (0.3) pra não atrapalhar a leitura das letras
+      var particleFragment = [
+        'uniform vec3 uColor;',
+        'void main() {',
+        '  gl_FragColor = vec4(uColor, 0.3);',
+        '}'
+      ].join('\n');
+
+      function initScene() {
+        // Câmera
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
+        camera.position.set(0, 6, 5);
+
+        // Cena
+        scene = new THREE.Scene();
+
+        // Renderer — alpha: fundo transparente
+        // PERF: em celular/fraco → sem antialias, pixelRatio 1, GPU integrada (low-power)
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: !isLowEnd,
+          alpha: true,
+          powerPreference: isLowEnd ? 'low-power' : 'default'
+        });
+        renderer.setPixelRatio(isLowEnd ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+
+        // Grade de partículas
+        // PERF: desktop = 160x160 (25.6k) — redução de 36% vs 40k, visualmente quase igual
+        // Celular = 100x100 (10k) com gap maior → mesma área da onda
+        var gap = isLowEnd ? 0.6 : 0.35;
+        var amountX = isLowEnd ? 100 : 160;
+        var amountY = isLowEnd ? 100 : 160;
+        var particleNum = amountX * amountY;
+        var particlePositions = new Float32Array(particleNum * 3);
+        var particleScales = new Float32Array(particleNum);
+
+        var i = 0;
+        var j = 0;
+        for (var ix = 0; ix < amountX; ix++) {
+          for (var iy = 0; iy < amountY; iy++) {
+            particlePositions[i] = ix * gap - ((amountX * gap) / 2);
+            particlePositions[i + 1] = 0;
+            particlePositions[i + 2] = iy * gap - ((amountX * gap) / 2);
+            particleScales[j] = 1;
+            i += 3;
+            j++;
+          }
+        }
+
+        var particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particleGeometry.setAttribute('scale', new THREE.BufferAttribute(particleScales, 1));
+
+        particleMaterial = new THREE.ShaderMaterial({
+          transparent: true,
+          vertexShader: particleVertex,
+          fragmentShader: particleFragment,
+          uniforms: {
+            uTime: { value: 0 },
+            uIntensity: { value: 1 },
+            uColor: { value: getParticleColor() },
+            uMouse: { value: mouseWorld.clone() }
+          }
+        });
+
+        particles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particles);
+      }
+
+      function animate() {
+        // PERF: raycast do mouse só 1x por frame (não a cada movimento)
+        if (pendingPX !== null) {
+          projectPointer(pendingPX, pendingPY);
+          pendingPX = null;
+        }
+        // ===== ASSINATURA: a onda reage ao player =====
+        // window.ML_INTENSIDADE vem do script.js:
+        // 1 = normal · 0.6 = player parado · até 3 = rolagem no máximo
+        var inten = (typeof window.ML_INTENSIDADE === 'number') ? window.ML_INTENSIDADE : 1;
+        if (inten < 0.4) inten = 0.4;
+        if (inten > 3) inten = 3;
+        particleMaterial.uniforms.uTime.value += 0.05 * inten; // velocidade da onda
+        // amplitude (0.6 a 1.8) — cresce junto, mas menos que a velocidade pra não enjoar
+        particleMaterial.uniforms.uIntensity.value = Math.min(1.8, Math.max(0.6, 0.7 + 0.3 * inten));
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+        animationId = requestAnimationFrame(animate);
+      }
+
+      function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      // Converte a posição do mouse/touch em um ponto no plano das partículas
+      function projectPointer(clientX, clientY) {
+        mouse.x = (clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        // intersectPlane preenche mouseWorld; se falhar, mantém o último
+        raycaster.ray.intersectPlane(groundPlane, mouseWorld);
+      }
+
+      function handlePointerMove(e) {
+        // Só guarda — o animate() processa 1x por frame
+        var pt = (e.touches && e.touches[0]) ? e.touches[0] : e;
+        pendingPX = pt.clientX;
+        pendingPY = pt.clientY;
+      }
+
+      // Mouse saiu da janela → "solta" a onda (bump some)
+      function handlePointerLeave() {
+        mouseWorld.set(9999, 0, 9999);
+      }
+
+      // PERF: aba em segundo plano → para o rAF (economia de bateria/CPU)
+      function handleVisibility() {
+        if (document.hidden) {
+          if (animationId) cancelAnimationFrame(animationId);
+          animationId = null;
+        } else if (!animationId && scene && particleMaterial) {
+          animate();
+        }
+      }
+
+      try {
+        initScene();
+        animate();
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('mousemove', handlePointerMove, { passive: true });
+        window.addEventListener('touchmove', handlePointerMove, { passive: true });
+        window.addEventListener('mouseleave', handlePointerLeave);
+        document.addEventListener('visibilitychange', handleVisibility);
+        // Cleanup ao sair da página
+        window.addEventListener('beforeunload', cleanup);
+      } catch (err) {
+        // WebGL indisponível → site continua funcionando sem o fundo
+        console.warn('Particle Wave não inicializou:', err);
+      }
+
+      function cleanup() {
+        if (animationId) cancelAnimationFrame(animationId);
+        if (renderer) {
+          renderer.dispose();
+          renderer.forceContextLoss();
+        }
+        if (particleGeometry) particleGeometry.dispose();
+        if (particleMaterial) particleMaterial.dispose();
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('mousemove', handlePointerMove);
+        window.removeEventListener('touchmove', handlePointerMove);
+        window.removeEventListener('mouseleave', handlePointerLeave);
+        document.removeEventListener('visibilitychange', handleVisibility);
+      }
+    })();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
