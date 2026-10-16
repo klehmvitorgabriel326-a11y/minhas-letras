@@ -10,6 +10,9 @@
   const LS_ACESSOS_LOCAL = 'ml_acessos_local'; // fallback do histórico quando a nuvem falha
   const LS_ULTIMO_ACESSO = 'ml_ultimo_acesso'; // evita registrar acesso repetido no refresh
   const LS_SALAS = 'ml_salas';                 // salas de ensaio locais (cache)
+  const LS_FONTE = 'ml_fonte';                 // escala de fonte no player (1 = normal)
+  const LS_TAGS_FILTRO = 'ml_tags_filtro';     // tag ativa no filtro da lista
+  const LS_FAVORITOS = 'ml_favoritos';         // ids de letras favoritas
   const CANAL_TV = 'minhas-letras-tv';         // BroadcastChannel da 2ª tela
   const CANAL_SALA = 'minhas-letras-sala';     // BroadcastChannel para sala de ensaio
   const $ = s => document.querySelector(s);
@@ -60,6 +63,11 @@
 
   // Ordem: 'criado_em' | 'titulo_az' | 'titulo_za' | 'recente' | 'antiga' | 'estrofes_mais' | 'estrofes_menos'
   let ordemAtual = 'criado_em';
+
+  // --- FEATURES NOVAS ---
+  let fontScale = storageGet(LS_FONTE, 1);     // escala da fonte no player (0.7 a 2.0)
+  let tagAtiva = storageGet(LS_TAGS_FILTRO, null); // tag filtrada na lista (null = todas)
+  let favoritos = new Set(storageGet(LS_FAVORITOS, [])); // ids favoritados
 
 const el = {
     viewLogin: $('#view-login'),
@@ -149,6 +157,10 @@ const el = {
     btnTvFechar: $('#tv-fechar'),
     // --- NOVOS: Compartilhar, Sala, Referência ---
     btnCompartilhar: $('#btn-compartilhar'),
+    // --- Features novas: fonte, tag filter, favorito ---
+    btnFontUp: $('#btn-font-up'),
+    btnFontDown: $('#btn-font-down'),
+    tagFilter: $('#tag-filter'),
     btnSala: $('#btn-sala'),
     modalSala: $('#modal-sala'),
     salaCodigo: $('#sala-codigo'),
@@ -2223,6 +2235,9 @@ function escapeHtml(s) {
     let lista = [...letras];
     let pontuados = null;
 
+    // FILTRO POR TAG (feature nova) — antes da busca
+    lista = filtrarPorTag(lista);
+
     // BUSCA FUZZY (22): pontua em vez de exigir "contém" — errar uma letra
     // ou pular espaço não esconde mais o resultado.
     if (termoNorm) {
@@ -2247,6 +2262,9 @@ function escapeHtml(s) {
     }
 
     const arrastavel = ordemAtual === 'manual';
+
+    // Atualiza barra de filtro de tags
+    renderTagFilter();
 
     el.contador.textContent = letras.length === 0
       ? 'Nenhuma letra salva'
@@ -2303,6 +2321,7 @@ function escapeHtml(s) {
           </div>
           <div class="card-actions">
             <button class="btn btn-success btn-cantar" data-acao="cantar" data-id="${escapeHtml(l.id)}"><span class="msi" style="font-size:17px">play_arrow</span> Cantar</button>
+            <button class="btn btn-ghost btn-sm btn-fav${favoritos.has(String(l.id)) ? ' is-fav' : ''}" data-acao="favoritar" data-id="${escapeHtml(l.id)}" aria-label="Favoritar" title="${favoritos.has(String(l.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${favoritos.has(String(l.id)) ? '★' : '☆'}</button>
             <button class="btn btn-ghost btn-sm" data-acao="compartilhar" data-id="${escapeHtml(l.id)}" aria-label="Compartilhar" title="Compartilhar link público"><span class="msi" style="font-size:17px">share</span></button>
             <button class="btn btn-ghost btn-sm" data-acao="pdf" data-id="${escapeHtml(l.id)}" aria-label="Exportar PDF" title="Exportar PDF"><span class="msi" style="font-size:17px">picture_as_pdf</span></button>
             <button class="btn btn-ghost btn-sm" data-acao="editar" data-id="${escapeHtml(l.id)}" aria-label="Editar"><span class="msi" style="font-size:17px">edit</span></button>
@@ -2533,6 +2552,7 @@ function escapeHtml(s) {
     } else {
       renderManual();
     }
+    aplicarFontScale(); // aplica tamanho de fonte salvo
     atualizarIntensidade();
 
     // Wake Lock
@@ -2900,6 +2920,120 @@ function escapeHtml(s) {
     } catch {}
   })();
 
+  // ============ FEATURE: TAMANHO DA FONTE NO PLAYER ============
+  function aplicarFontScale() {
+    if (!el.stage) return;
+    el.stage.style.fontSize = fontScale === 1 ? '' : `${fontScale}rem`;
+    // Aplica também nos elementos de letra dentro do stage
+    el.stage.querySelectorAll('.lyric-line, .lyric-text, .auto-estrofe, #lyric-line').forEach(x => {
+      x.style.fontSize = fontScale === 1 ? '' : `${fontScale}rem`;
+    });
+    // Ajusta a estrofe no modo manual depois da mudança
+    if (modo === 'manual') {
+      const ln = document.getElementById('lyric-line');
+      if (ln && typeof ajustarEstrofe === 'function') ajustarEstrofe(ln);
+    }
+  }
+
+  function mudarFonte(delta) {
+    fontScale = Math.round(Math.min(2.0, Math.max(0.6, fontScale + delta)) * 100) / 100;
+    storageSet(LS_FONTE, fontScale);
+    aplicarFontScale();
+    toast(`Texto: ${Math.round(fontScale * 100)}%`);
+  }
+
+  // ============ FEATURE: FILTRO POR TAG ============
+  function coletarTodasTags() {
+    const mapa = new Map();
+    for (const l of letras) {
+      for (const t of (l.tags || [])) {
+        const tag = String(t).trim().toLowerCase();
+        if (!tag) continue;
+        mapa.set(tag, (mapa.get(tag) || 0) + 1);
+      }
+    }
+    // Ordena por quantidade (mais usada primeiro)
+    return [...mapa.entries()].sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderTagFilter() {
+    if (!el.tagFilter) return;
+    const tags = coletarTodasTags();
+    const temFavoritos = favoritos.size > 0;
+    // Esconde a barra se não tem tags nem favoritos
+    if (tags.length === 0 && !temFavoritos) {
+      el.tagFilter.classList.add('hidden');
+      el.tagFilter.innerHTML = '';
+      return;
+    }
+    el.tagFilter.classList.remove('hidden');
+    let html = '';
+    // Botão "Favoritas" sempre primeiro (se tiver alguma)
+    if (temFavoritos) {
+      html += `<button class="tag-filter-btn tag-fav${tagAtiva === '__fav__' ? ' active' : ''}" data-tag="__fav__">⭐ Favoritas</button>`;
+    }
+    for (const [tag, count] of tags) {
+      html += `<button class="tag-filter-btn${tagAtiva === tag ? ' active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} (${count})</button>`;
+    }
+    // Botão "limpar" se tem filtro ativo
+    if (tagAtiva) {
+      html += `<button class="tag-filter-btn" data-tag="__limpar__" style="border-style:dashed;">✕ Limpar</button>`;
+    }
+    el.tagFilter.innerHTML = html;
+  }
+
+  function filtrarPorTag(lista) {
+    if (!tagAtiva) return lista;
+    if (tagAtiva === '__fav__') {
+      return lista.filter(l => favoritos.has(String(l.id)));
+    }
+    return lista.filter(l =>
+      (l.tags || []).some(t => String(t).trim().toLowerCase() === tagAtiva)
+    );
+  }
+
+  function selecionarTag(tag) {
+    if (tag === '__limpar__') {
+      tagAtiva = null;
+    } else {
+      tagAtiva = tagAtiva === tag ? null : tag; // clica de novo = limpa
+    }
+    storageSet(LS_TAGS_FILTRO, tagAtiva);
+    renderTagFilter();
+    render();
+  }
+
+  // ============ FEATURE: FAVORITAR ============
+  function alternarFavorito(id) {
+    const chave = String(id);
+    if (favoritos.has(chave)) {
+      favoritos.delete(chave);
+      toast('Removido dos favoritos');
+    } else {
+      favoritos.add(chave);
+      toast('⭐ Adicionado aos favoritos!');
+    }
+    storageSet(LS_FAVORITOS, [...favoritos]);
+    renderTagFilter();
+    render();
+  }
+
+  document.body.addEventListener('click', e => {
+    // Botão de favoritar na lista
+    const btnFav = e.target.closest('[data-acao="favoritar"]');
+    if (btnFav) {
+      e.stopPropagation();
+      alternarFavorito(Number(btnFav.dataset.id));
+      return;
+    }
+    // Botão de filtro por tag
+    const btnTag = e.target.closest('.tag-filter-btn');
+    if (btnTag) {
+      selecionarTag(btnTag.dataset.tag);
+      return;
+    }
+  });
+
   let deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
@@ -2981,6 +3115,10 @@ function escapeHtml(s) {
   if (el.btnCifra) el.btnCifra.addEventListener('click', alternarCifra);
   if (el.btnTransposeDown) el.btnTransposeDown.addEventListener('click', () => alterarTranspose(-1));
   if (el.btnTransposeUp) el.btnTransposeUp.addEventListener('click', () => alterarTranspose(1));
+
+  // ===== Features novas: botões de fonte =====
+  if (el.btnFontUp) el.btnFontUp.addEventListener('click', () => mudarFonte(0.1));
+  if (el.btnFontDown) el.btnFontDown.addEventListener('click', () => mudarFonte(-0.1));
 
   // ===== Tema, Export/Import, Ordem =====
   if (el.btnTema) el.btnTema.addEventListener('click', alternarTema);

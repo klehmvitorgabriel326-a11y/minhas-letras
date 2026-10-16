@@ -1688,6 +1688,61 @@ body.palco-on .manual-view .lyric-line { font-size: clamp(2.5rem, 6.5vw, 4.4rem)
 }
 .ref-marker .btn-sm { padding: 0.25rem 0.5rem; }
 
+/* ============ FEATURES NOVAS ============ */
+
+/* --- Filtro por tag (chips acima da grid) --- */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.tag-filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag-filter-btn:hover {
+  border-color: var(--border-bright);
+  color: var(--text-primary);
+}
+.tag-filter-btn.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.tag-filter-btn.tag-fav {
+  color: #facc15;
+}
+.tag-filter-btn.tag-fav.active {
+  background: #facc15;
+  color: #000;
+  border-color: #facc15;
+}
+
+/* --- Botão favoritar (estrela) --- */
+.btn-fav {
+  font-size: 18px !important;
+  color: var(--text-muted) !important;
+}
+.btn-fav.is-fav {
+  color: #facc15 !important;
+}
+
+/* --- Botões de fonte no player --- */
+#btn-font-up, #btn-font-down {
+  font-weight: 700;
+  font-size: 0.85rem !important;
+  letter-spacing: -0.02em;
+}
+
 @media (max-width: 640px) {
   #ref-sidebar { width: 100vw; }
 }
