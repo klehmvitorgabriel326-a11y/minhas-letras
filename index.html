@@ -6,11 +6,14 @@
   <meta name="theme-color" content="#000000">
   <title>Minhas Letras — Caderno Profissional</title>
   <!-- deploy test v2 -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ccircle cx='256' cy='256' r='152' fill='%23fafafa'/%3E%3Ctext x='256' y='320' font-family=%22Google Sans Flex, Verdana%22 font-size='200' font-weight='800' text-anchor='middle' fill='%23000000'%3E%E2%99%AA%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0b0c'/%3E%3Cpath d='M12 22V10l11-2v12' fill='none' stroke='%23e0b354' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='9' cy='22' r='3' fill='%23e0b354'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23e0b354'/%3E%3C/svg%3E">
+  <meta name="description" content="Minhas Letras — caderno de letras e cifras com player de rolagem automática, manual ou sincronizado com o vídeo.">
+  <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_back,check_circle,close,dark_mode,delete,download,edit,fullscreen,groups,history,light_mode,lock,logout,music_note,music_video,pause,person,picture_as_pdf,play_arrow,radio_button_checked,search,share,tv,upload&display=block">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_back,check_circle,close,dark_mode,delete,download,edit,fullscreen,groups,history,light_mode,lock,logout,more,more_vert,music_note,music_video,pause,person,picture_as_pdf,play_arrow,radio_button_checked,search,share,tv,upload&display=block">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,11 +28,11 @@
         <div class="logo-box"><span class="msi">music_note</span></div>
         <div>
           <h1>Minhas Letras</h1>
-          <p>Seu caderno de cifras</p>
+          <p>Caderno de letras</p>
         </div>
       </div>
       <h2>Entrar</h2>
-      <p class="auth-sub">Bora cantar? É só entrar.</p>
+      <p class="auth-sub">Entre para acessar suas letras.</p>
       <form id="form-login" novalidate>
         <div class="field" id="f-login-usuario">
           <label for="i-login-usuario">E-mail</label>
@@ -71,7 +74,7 @@
         </div>
       </div>
       <h2>Nova conta</h2>
-      <p class="auth-sub">Rapidinho: e-mail, senha e pronto.</p>
+      <p class="auth-sub">Crie uma conta para guardar suas letras.</p>
       <form id="form-registro" novalidate>
         <div class="field" id="f-reg-usuario">
           <label for="i-reg-usuario">E-mail</label>
@@ -113,11 +116,11 @@
         <div class="logo-box"><span class="msi">music_note</span></div>
         <div>
           <h1>Minhas Letras</h1>
-          <p>Seu caderno de cifras</p>
+          <p>Caderno de letras</p>
         </div>
       </div>
       <h2>Esqueci minha senha</h2>
-      <p class="auth-sub">Bora resolver? Digita seu e-mail e te mandamos um link.</p>
+      <p class="auth-sub">Enviamos um link de redefinição para o seu e-mail.</p>
       <form id="form-esqueci" novalidate>
         <div class="field" id="f-esqueci-email">
           <label for="i-esqueci-email">E-mail</label>
@@ -150,11 +153,11 @@
         <div class="logo-box"><span class="msi">music_note</span></div>
         <div>
           <h1>Minhas Letras</h1>
-          <p>Seu caderno de cifras</p>
+          <p>Caderno de letras</p>
         </div>
       </div>
       <h2>Criar nova senha</h2>
-      <p class="auth-sub">Último passo: escolhe uma senha nova e confirma.</p>
+      <p class="auth-sub">Escolha uma nova senha.</p>
       <form id="form-redefinir" novalidate>
         <div class="field" id="f-red-senha">
           <label for="i-red-senha">Nova senha</label>
@@ -191,26 +194,36 @@
         <div class="logo-box"><span class="msi">music_note</span></div>
         <div>
           <h1>Minhas Letras</h1>
-          <p>Seu caderno de cifras</p>
+          <p>Caderno de letras</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-ghost hidden" id="btn-instalar"><span class="msi" style="font-size:17px">download</span> Instalar</button>
-        <button class="btn btn-primary" id="btn-nova"><span class="msi" style="font-size:17px">add</span> <span class="btn-label">Nova letra</span></button>
-        <button class="btn btn-ghost" id="btn-acessos" aria-label="Histórico de acessos" title="Histórico de acessos"><span class="msi" style="font-size:17px">history</span> <span class="btn-label">Acessos</span></button>
-        <button class="btn btn-ghost" id="btn-trocar-senha"><span class="msi" style="font-size:17px">lock</span> Senha</button>
-        <button class="btn btn-ghost" id="btn-tema" aria-label="Alternar tema" title="Tema (claro/escuro)"><span class="msi" style="font-size:17px">light_mode</span></button>
-        <button class="btn-sair" id="btn-sair"><span class="msi" style="font-size:15px">logout</span> Sair</button>
+        <button class="btn btn-ghost hidden" id="btn-instalar"><span class="msi">download</span> <span class="btn-label">Instalar</span></button>
+        <button class="btn btn-primary" id="btn-nova"><span class="msi">add</span> <span class="btn-label">Nova letra</span></button>
+        <div class="menu-wrap">
+          <button class="btn btn-ghost" id="btn-menu" aria-label="Mais ações" aria-haspopup="true" aria-expanded="false" title="Mais ações">
+            <span class="msi">more_vert</span>
+          </button>
+          <div class="menu hidden" id="menu-principal" role="menu">
+            <button class="menu-item" id="btn-acessos" role="menuitem"><span class="msi">history</span> Histórico de acessos</button>
+            <button class="menu-item" id="btn-trocar-senha" role="menuitem"><span class="msi">lock</span> Trocar senha</button>
+            <button class="menu-item" id="btn-tema" role="menuitem"><span class="msi">light_mode</span> Tema</button>
+            <div class="menu-sep" role="separator"></div>
+            <button class="menu-item" id="btn-sair" role="menuitem"><span class="msi">logout</span> Sair da conta</button>
+          </div>
+        </div>
       </div>
     </header>
 
     <main>
       <div class="toolbar">
         <div class="search-box">
-          <span class="search-ico msi" style="font-size:18px">search</span>
-          <input type="text" id="busca" placeholder="Buscar música, artista ou tag...">
+          <span class="search-ico msi">search</span>
+          <input type="text" id="busca" placeholder="Buscar por música, artista ou tag" aria-label="Buscar letras">
+          <span class="search-kbd" aria-hidden="true"><kbd>Ctrl</kbd><kbd>K</kbd></span>
         </div>
         <div class="toolbar-right">
+          <div class="stats" id="stats" aria-label="Resumo do repertório"></div>
           <select id="ordem-select" class="ordem-select" aria-label="Ordenar letras" title="Ordenar">
             <option value="criado_em">Ordem de criação</option>
             <option value="titulo_az">Título A–Z</option>
@@ -221,13 +234,14 @@
             <option value="estrofes_menos">Menos estrofes</option>
             <option value="manual">Minha ordem (arraste)</option>
           </select>
-          <button class="btn btn-ghost" id="btn-exportar" aria-label="Exportar backup" title="Exportar backup (JSON)"><span class="msi" style="font-size:17px">upload</span></button>
-          <button class="btn btn-ghost" id="btn-importar" aria-label="Importar backup" title="Importar backup (JSON)"><span class="msi" style="font-size:17px">download</span></button>
+          <button class="btn btn-ghost" id="btn-exportar" aria-label="Exportar backup" title="Exportar backup (JSON)"><span class="msi">upload</span></button>
+          <button class="btn btn-ghost" id="btn-importar" aria-label="Importar backup" title="Importar backup (JSON)"><span class="msi">download</span></button>
           <input type="file" id="input-importar" accept=".json" class="hidden" aria-hidden="true">
           <span class="count" id="contador"></span>
         </div>
       </div>
       <div class="tag-filter hidden" id="tag-filter" aria-label="Filtrar por tag"></div>
+      <div class="resume-strip hidden" id="resume-strip" aria-label="Continuar de onde parou"></div>
       <div class="grid" id="grid"></div>
       <footer class="site-foot">
         <span>© 2026 Minhas Letras</span>
@@ -314,27 +328,30 @@
           <button data-modo="auto" id="modo-auto" class="active">Auto</button>
           <button data-modo="manual" id="modo-manual">Manual</button>
         </div>
-        <button class="btn-ghost" id="btn-cifra" aria-label="Modo cifra (acordes)" title="Modo cifra (C)"><span class="msi" style="font-size:17px">music_note</span></button>
-        <button class="btn-ghost" id="btn-tv" aria-label="Abrir na 2ª tela (TV)" title="2ª tela / TV — abre em outra janela"><span class="msi" style="font-size:17px">tv</span></button>
-        <button class="btn-ghost" id="btn-sala" aria-label="Sala de ensaio (banda)" title="Sala de ensaio — sincroniza com a banda"><span class="msi" style="font-size:17px">groups</span></button>
-        <button class="btn-ghost" id="btn-referencia" aria-label="Referência YouTube/Spotify" title="Referência — YouTube ou Spotify"><span class="msi" style="font-size:17px">music_video</span></button>
-        <button class="btn-ghost" id="btn-compartilhar" aria-label="Compartilhar letra" title="Compartilhar link público"><span class="msi" style="font-size:17px">share</span></button>
-        <div class="transpose-group" id="transpose-group" style="display:none;">
-          <button class="btn-ghost btn-sm" id="btn-transpose-down" aria-label="Transpor -1 semitom" title="Tom -1 ([)">−</button>
-          <span class="transpose-value" id="transpose-value">0</span>
-          <button class="btn-ghost btn-sm" id="btn-transpose-up" aria-label="Transpor +1 semitom" title="Tom +1 (])">+</button>
+        <div class="player-actions" id="player-actions">
+          <button class="btn-ghost" id="btn-cifra" aria-label="Modo cifra (acordes)" title="Modo cifra (C)"><span class="msi">music_note</span></button>
+          <button class="btn-ghost" id="btn-tv" aria-label="Abrir na 2ª tela (TV)" title="2ª tela / TV — abre em outra janela"><span class="msi">tv</span></button>
+          <button class="btn-ghost" id="btn-sala" aria-label="Sala de ensaio (banda)" title="Sala de ensaio — sincroniza com a banda"><span class="msi">groups</span></button>
+          <button class="btn-ghost" id="btn-referencia" aria-label="Referência YouTube/Spotify" title="Referência — YouTube ou Spotify"><span class="msi">music_video</span></button>
+          <button class="btn-ghost" id="btn-compartilhar" aria-label="Compartilhar letra" title="Compartilhar link público"><span class="msi">share</span></button>
+          <div class="transpose-group" id="transpose-group" style="display:none;">
+            <button class="btn-ghost btn-sm" id="btn-transpose-down" aria-label="Transpor -1 semitom" title="Tom -1 ([)">−</button>
+            <span class="transpose-value" id="transpose-value">0</span>
+            <button class="btn-ghost btn-sm" id="btn-transpose-up" aria-label="Transpor +1 semitom" title="Tom +1 (])">+</button>
+          </div>
+          <button class="btn-ghost btn-sm" id="btn-font-down" aria-label="Diminuir fonte" title="Diminuir texto (−)">A−</button>
+          <button class="btn-ghost btn-sm" id="btn-font-up" aria-label="Aumentar fonte" title="Aumentar texto (+)">A+</button>
+          <button class="btn-ghost" id="btn-fullscreen"><span class="msi">fullscreen</span> <span id="fs-label">Tela cheia</span></button>
+          <button class="btn-ghost" id="btn-palco" aria-pressed="false" aria-label="Modo palco">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 4h18"/>
+              <path d="M4 4c3 4 3 12 0 16"/>
+              <path d="M20 4c-3 4-3 12 0 16"/>
+            </svg>
+            <span id="palco-label">Palco</span>
+          </button>
         </div>
-        <button class="btn-ghost btn-sm" id="btn-font-down" aria-label="Diminuir fonte" title="Diminuir texto (−)">A−</button>
-        <button class="btn-ghost btn-sm" id="btn-font-up" aria-label="Aumentar fonte" title="Aumentar texto (+)">A+</button>
-        <button class="btn-ghost" id="btn-fullscreen"><span class="msi" style="font-size:17px">fullscreen</span> <span id="fs-label">Tela cheia</span></button>
-        <button class="btn-ghost" id="btn-palco" aria-pressed="false" aria-label="Modo palco">
-          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 4h18"/>
-            <path d="M4 4c3 4 3 12 0 16"/>
-            <path d="M20 4c-3 4-3 12 0 16"/>
-          </svg>
-          <span id="palco-label">Palco</span>
-        </button>
+        <button class="btn btn-ghost player-more" id="btn-player-more" aria-label="Mais opções" aria-expanded="false" title="Mais opções"><span class="msi">more_vert</span></button>
       </div>
     </div>
 
@@ -349,8 +366,8 @@
 
     <div class="stage" id="stage">
       <div id="view-notfound" class="not-found hidden">
-        <h2>Essa não está no repertório</h2>
-        <p>Ou saiu do caderno, ou nunca esteve nele.</p>
+        <h2>Letra não encontrada</h2>
+        <p>Ela pode ter sido removida do caderno.</p>
       </div>
     </div>
 
@@ -362,7 +379,7 @@
   <div class="modal-overlay hidden" id="modal-form">
     <div class="modal">
       <h3 id="modal-title">Nova letra</h3>
-      <p class="modal-sub" id="modal-sub">Cola a letra aqui — o resto é com a gente.</p>
+      <p class="modal-sub" id="modal-sub">Cole a letra. Separe as estrofes com uma linha em branco.</p>
       <form id="form-letra" novalidate>
         <div class="field" id="f-titulo">
           <label for="i-titulo">Título da música</label>
@@ -377,18 +394,18 @@
         <div class="field" id="f-tags">
           <label for="i-tags">Tags (separadas por vírgula)</label>
           <input type="text" id="i-tags" placeholder="Ex.: forró, luiz gonzaza, clássicos, ensaio">
-          <p class="hint">Use tags pra organizar: gênero, momento, setlist, etc.</p>
+          <p class="hint">Use tags para organizar: gênero, momento, setlist.</p>
         </div>
         <div class="field" id="f-referencia">
           <label for="i-referencia">Link de referência (YouTube / Spotify)</label>
           <input type="url" id="i-referencia" placeholder="https://youtu.be/... ou https://open.spotify.com/track/...">
-          <p class="hint">Cole o link do YouTube ou Spotify — abre no player pra sincronizar com a letra.</p>
+          <p class="hint">Cole um link do YouTube ou Spotify para sincronizar a letra com o vídeo.</p>
         </div>
         <div class="field" id="f-letra">
           <label for="i-letra">Letra</label>
           <textarea id="i-letra" placeholder="Cole ou digite a letra aqui...&#10;&#10;Dica: deixe uma linha em branco entre cada estrofe.&#10;Para cifras: coloque a linha de acordes ANTES da linha de letra (ex.: [C] [F] [G] ou | C | F | G |)."></textarea>
           <p class="err">Cole ou digite a letra.</p>
-          <p class="hint">Separe as estrofes com uma linha em branco — fica melhor na hora de cantar.</p>
+          <p class="hint">Separe as estrofes com uma linha em branco.</p>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="btn-cancelar">Cancelar</button>
@@ -414,7 +431,7 @@
   <div class="modal-overlay hidden" id="modal-acessos">
     <div class="modal small">
       <h3>Histórico de acessos</h3>
-      <p class="modal-sub" id="acessos-sub">Últimos logins com data e aparelho.</p>
+      <p class="modal-sub" id="acessos-sub">Últimos acessos registrados.</p>
       <div class="acessos-lista" id="acessos-lista"></div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="btn-fechar-acessos">Fechar</button>
@@ -426,16 +443,16 @@
   <div class="modal-overlay hidden" id="modal-tv">
     <div class="modal small">
       <h3>2ª tela / TV</h3>
-      <p class="modal-sub" id="tv-sub">Abre a letra em outra janela <b>aqui</b> — ou aponta o celular no QR / copia o link pra abrir <b>noutro aparelho</b> (TV, celular, outro PC) logado na mesma conta.</p>
+      <p class="modal-sub" id="tv-sub">Abre a letra em outra janela <b>nesta máquina</b> ou em <b>outro aparelho</b> (TV, celular) usando a mesma conta.</p>
       <div class="field" id="tv-campo-link" style="display:none;">
         <label for="tv-link">Link pro outro aparelho</label>
         <input type="text" id="tv-link" readonly placeholder="gerando link…">
-        <p class="tv-aviso" id="tv-aviso">Esse link dá acesso à sua conta — é como uma senha. Só manda pra aparelho seu.</p>
-        <p class="tv-aviso" id="tv-aviso-host" style="display:none;">Seu site não está publicado agora, então esse link só abre <b>nesta rede/máquina</b>. Publica no Netlify pra usar de qualquer lugar.</p>
+        <p class="tv-aviso" id="tv-aviso">Este link dá acesso à sua conta. Envie apenas para os seus aparelhos.</p>
+        <p class="tv-aviso" id="tv-aviso-host" style="display:none;">O site ainda não está publicado, então este link só abre <b>nesta máquina</b>.</p>
       </div>
       <div class="tv-qr-area hidden" id="tv-qr-area">
         <canvas id="tv-qr-canvas" width="130" height="130" aria-label="QR Code do link"></canvas>
-        <p class="tv-aviso">Aponta o celular pro QR — abre a 2ª tela direto.</p>
+        <p class="tv-aviso">Aponte a câmera para o QR — abre a 2ª tela direto.</p>
       </div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="tv-fechar">Fechar</button>
@@ -449,7 +466,7 @@
   <div class="modal-overlay hidden" id="modal-sala">
     <div class="modal small">
       <h3>Sala de ensaio</h3>
-      <p class="modal-sub">Sincroniza a letra com a banda — todo mundo vê a mesma estrofe no mesmo tempo.</p>
+      <p class="modal-sub">Todos veem a mesma estrofe ao mesmo tempo.</p>
 
       <!-- Criar / Entrar (escondido quando já está em sala) -->
       <div id="sala-criar-entrar">
@@ -459,11 +476,11 @@
             <input type="text" id="sala-codigo-input" maxlength="4" placeholder="ABCD" autocomplete="off" spellcheck="false">
             <button type="button" class="btn btn-primary" id="sala-entrar">Entrar</button>
           </div>
-          <p class="hint">Pegue o código com quem criou a sala.</p>
+          <p class="hint">Peça o código a quem criou a sala.</p>
         </div>
         <div class="modal-actions" style="justify-content:space-between;">
           <button class="btn btn-ghost" id="sala-cancelar">Cancelar</button>
-          <button class="btn btn-success" id="sala-criar"><span class="msi" style="font-size:17px">add</span> Criar sala</button>
+          <button class="btn btn-success" id="sala-criar"><span class="msi">add</span> Criar sala</button>
         </div>
       </div>
 
@@ -475,7 +492,7 @@
         </div>
         <div class="sala-status" id="sala-status"></div>
         <div class="sala-participantes" id="sala-participantes"></div>
-        <p class="hint">Manda o código pro pessoal. Eles entram pelo mesmo botão.</p>
+        <p class="hint">Compartilhe o código com quem vai entrar.</p>
         <div class="modal-actions">
           <button class="btn btn-danger" id="sala-fechar">Sair da sala</button>
         </div>
@@ -503,14 +520,22 @@
         <button class="btn btn-ghost btn-sm" id="ref-sync">Sync OFF</button>
         <button class="btn btn-ghost btn-sm" id="ref-limpar">Limpar</button>
       </div>
-      <p class="hint">Dê <b>play</b> no vídeo e aperte <b>Marcar</b> quando cada estrofe começar. Com as marcas prontas, liga o <b>Sync</b> e a letra acompanha o vídeo.</p>
+      <p class="hint">Toque <b>play</b> no vídeo e marque o início de cada estrofe. Com as marcas prontas, ative o <b>Sync</b> para a letra acompanhar o vídeo.</p>
       <div id="ref-markers"></div>
     </div>
   </div>
 
   <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <div id="aviso-tela-pequena" role="note">Essa tela é pequena demais pra cantar! Abre o Minhas Letras no celular ou no computador.</div>
+  <!-- Paleta de comandos (Ctrl+K) -->
+  <div class="palette hidden" id="palette">
+    <div class="palette-box">
+      <input type="text" class="palette-input" id="palette-input" placeholder="Buscar comando ou letra" aria-label="Paleta de comandos" autocomplete="off" spellcheck="false">
+      <div class="palette-list" id="palette-list"></div>
+    </div>
+  </div>
+
+  <div id="aviso-tela-pequena" role="note">Tela pequena demais para cantar. Abra o Minhas Letras em um celular ou computador.</div>
 
   <!-- Three.js via CDN (sem npm/build — mantém o site vanilla) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

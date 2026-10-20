@@ -181,7 +181,15 @@ const el = {
     refSync: $('#ref-sync'),
     refLimpar: $('#ref-limpar'),
     refMarkers: $('#ref-markers'),
-    iReferencia: $('#i-referencia')
+    iReferencia: $('#i-referencia'),
+    // --- Redesign: menu, resumo, retomar, paleta de comandos ---
+    btnMenu: $('#btn-menu'),
+    menuPrincipal: $('#menu-principal'),
+    stats: $('#stats'),
+    resumeStrip: $('#resume-strip'),
+    palette: $('#palette'),
+    paletteInput: $('#palette-input'),
+    paletteList: $('#palette-list')
   };
 
   function storageGet(chave, fallback) {
@@ -2092,6 +2100,8 @@ function escapeHtml(s) {
     if (ico) ico.textContent = tema === 'light' ? 'dark_mode' : 'light_mode';
   }
 
+  // Listener do sistema — registrado uma vez só, mesmo se initTema() rodar 2x
+  let temaListenerOk = false;
   function initTema() {
     const salvo = storageGet(LS_TEMA, null);
     if (salvo) {
@@ -2101,6 +2111,8 @@ function escapeHtml(s) {
       const prefereClaro = window.matchMedia('(prefers-color-scheme: light)').matches;
       aplicarTema(prefereClaro ? 'light' : 'dark');
     }
+    if (temaListenerOk) return;
+    temaListenerOk = true;
     // Listener para mudança do sistema
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
       if (!storageGet(LS_TEMA, null)) {
@@ -2226,8 +2238,81 @@ function escapeHtml(s) {
     t.className = `toast ${tipo}`;
     t.innerHTML = `<span class="toast-ico msi">${tipo === 'success' ? 'check_circle' : 'cancel'}</span><span>${escapeHtml(msg)}</span>`;
     el.toastRegion.appendChild(t);
+    // No maximo 3 toasts visiveis: no player eles cobrem a letra
+    while (el.toastRegion.children.length > 3) el.toastRegion.removeChild(el.toastRegion.firstChild);
     setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.2s'; }, 3000);
     setTimeout(() => t.remove(), 3300);
+  }
+
+  // ============ REDESIGN: resumo, retomar, destaque da busca ============
+
+  // Estatísticas do repertório — dá noção do tamanho da biblioteca.
+  function renderStats() {
+    if (!el.stats) return;
+    if (letras.length === 0) { el.stats.innerHTML = ''; return; }
+    const estrofes = letras.reduce((s, l) => s + contarEstrofes(l.letra || ''), 0);
+    const tags = new Set();
+    for (const l of letras) for (const t of (l.tags || [])) tags.add(t);
+    el.stats.innerHTML =
+      '<b>' + letras.length + '</b> ' + (letras.length === 1 ? 'letra' : 'letras') +
+      ' <span class="dot">·</span> <b>' + estrofes + '</b> ' + (estrofes === 1 ? 'estrofe' : 'estrofes') +
+      ' <span class="dot">·</span> <b>' + tags.size + '</b> ' + (tags.size === 1 ? 'tag' : 'tags');
+  }
+
+  // "Continuar de onde parou" — usa o histórico de cantadas (LS_RECENTS),
+  // que já era gravado desde sempre mas nunca era exibido em lugar nenhum.
+  function renderResume() {
+    if (!el.resumeStrip) return;
+    const rec = getRecentes().filter(l => l && l.id !== undefined && l.id !== null);
+    if (rec.length === 0) {
+      el.resumeStrip.classList.add('hidden');
+      el.resumeStrip.innerHTML = '';
+      return;
+    }
+    el.resumeStrip.classList.remove('hidden');
+    const itens = rec.slice(0, 4).map(l =>
+      '<button class="resume-item" data-resume="' + escapeHtml(l.id) + '" title="Abrir ' + escapeHtml(l.titulo) + '">' +
+      '<span class="msi">play_arrow</span><span>' + escapeHtml(l.titulo) + '</span></button>'
+    ).join('');
+    el.resumeStrip.innerHTML =
+      '<span class="resume-label"><span class="msi">history</span> Continuar</span>' +
+      '<div class="resume-items">' + itens + '</div>';
+  }
+
+  // Destaca no título as letras que casaram com a busca.
+  // Usa a MESMA normalização da busca fuzzy, então o destaque cai exatamente
+  // onde o usuário digitou (ignorando acentos e caixa).
+  function destacarTermo(texto, termoNorm) {
+    const original = String(texto || '');
+    if (!termoNorm) return escapeHtml(original);
+    const normChars = [];
+    for (const ch of original) {
+      const n = ch.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      for (const c of n) normChars.push(c);
+    }
+    // segurança: se a normalização mudou o tamanho, não destaca nada
+    if (normChars.length !== original.length) return escapeHtml(original);
+    const base = normChars.join('');
+    const marca = new Array(normChars.length).fill(false);
+    const ini = base.indexOf(termoNorm);
+    if (ini !== -1) {
+      for (let i = ini; i < ini + termoNorm.length; i++) marca[i] = true;
+    } else {
+      // casa por subsequência (fuzzy) — marca na ordem em que casou
+      let qi = 0;
+      for (let i = 0; i < normChars.length && qi < termoNorm.length; i++) {
+        if (normChars[i] === termoNorm[qi]) { marca[i] = true; qi++; }
+      }
+      if (qi < termoNorm.length) return escapeHtml(original);
+    }
+    let html = '', aberto = false;
+    for (let i = 0; i < original.length; i++) {
+      if (marca[i] && !aberto) { html += '<mark>'; aberto = true; }
+      if (!marca[i] && aberto) { html += '</mark>'; aberto = false; }
+      html += escapeHtml(original[i]);
+    }
+    if (aberto) html += '</mark>';
+    return html;
   }
 
   function render() {
@@ -2265,10 +2350,12 @@ function escapeHtml(s) {
 
     // Atualiza barra de filtro de tags
     renderTagFilter();
+    renderStats();
+    renderResume();
 
     el.contador.textContent = letras.length === 0
       ? 'Nenhuma letra salva'
-      : `${lista.length} de ${letras.length} música(s)`;
+      : `${lista.length} de ${letras.length} letra(s)`;
 
     // Badge do dock = total de letras (esconde se 0)
     const dockBadge = $('#dock-badge');
@@ -2285,9 +2372,9 @@ function escapeHtml(s) {
       el.grid.innerHTML = `
         <div class="empty-state">
           <div class="empty-ico msi">music_note</div>
-          <h3>Caderno vazio</h3>
-          <p>Toda história começa pela primeira letra. Cola aquela música que você vive cantando.</p>
-          <button class="btn btn-primary" data-acao="nova"><span class="msi" style="font-size:17px">add</span> Adicionar primeira letra</button>
+          <h3>Nenhuma letra ainda</h3>
+          <p>Adicione a música e a letra para começar a montar seu repertório.</p>
+          <button class="btn btn-primary" data-acao="nova"><span class="msi">add</span> Adicionar a primeira letra</button>
         </div>`;
       return;
     }
@@ -2296,8 +2383,8 @@ function escapeHtml(s) {
       el.grid.innerHTML = `
         <div class="empty-state">
           <div class="empty-ico msi">search</div>
-          <h3>Nada encontrado</h3>
-          <p>Nenhuma música corresponde à sua busca.</p>
+          <h3>Nenhum resultado</h3>
+          <p>Nenhuma letra corresponde à busca.</p>
           <button class="btn btn-ghost" data-acao="limpar-busca">Limpar busca</button>
         </div>`;
       return;
@@ -2306,12 +2393,13 @@ function escapeHtml(s) {
     el.grid.innerHTML = lista.map(l => {
       const est = contarEstrofes(l.letra);
       const lin = contarLinhas(l.letra);
-      const tagsHtml = (l.tags || []).length > 0
-        ? `<div class="card-tags">${l.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`
-        : '';
+      // o container de tags sai SEMPRE (mesmo vazio) pra todos os cards
+      // terem exatamente a mesma altura
+      const tagsHtml = `<div class="card-tags">${(l.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`;
       return `
         <div class="card"${arrastavel ? ' draggable="true"' : ''} data-card-id="${escapeHtml(l.id)}">
-          <div class="card-title">${escapeHtml(l.titulo)}</div>
+          <button class="btn btn-ghost btn-sm btn-fav${favoritos.has(String(l.id)) ? ' is-fav' : ''}" data-acao="favoritar" data-id="${escapeHtml(l.id)}" aria-label="Favoritar" title="${favoritos.has(String(l.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${favoritos.has(String(l.id)) ? '★' : '☆'}</button>
+          <div class="card-title">${destacarTermo(l.titulo, termoNorm)}</div>
           <div class="card-artist">${escapeHtml(l.artista || '—')}</div>
           ${tagsHtml}
           <div class="card-meta">
@@ -2320,12 +2408,11 @@ function escapeHtml(s) {
             <span>${lin} linha(s)</span>
           </div>
           <div class="card-actions">
-            <button class="btn btn-success btn-cantar" data-acao="cantar" data-id="${escapeHtml(l.id)}"><span class="msi" style="font-size:17px">play_arrow</span> Cantar</button>
-            <button class="btn btn-ghost btn-sm btn-fav${favoritos.has(String(l.id)) ? ' is-fav' : ''}" data-acao="favoritar" data-id="${escapeHtml(l.id)}" aria-label="Favoritar" title="${favoritos.has(String(l.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${favoritos.has(String(l.id)) ? '★' : '☆'}</button>
-            <button class="btn btn-ghost btn-sm" data-acao="compartilhar" data-id="${escapeHtml(l.id)}" aria-label="Compartilhar" title="Compartilhar link público"><span class="msi" style="font-size:17px">share</span></button>
-            <button class="btn btn-ghost btn-sm" data-acao="pdf" data-id="${escapeHtml(l.id)}" aria-label="Exportar PDF" title="Exportar PDF"><span class="msi" style="font-size:17px">picture_as_pdf</span></button>
-            <button class="btn btn-ghost btn-sm" data-acao="editar" data-id="${escapeHtml(l.id)}" aria-label="Editar"><span class="msi" style="font-size:17px">edit</span></button>
-            <button class="btn btn-ghost btn-sm" data-acao="excluir" data-id="${escapeHtml(l.id)}" aria-label="Excluir"><span class="msi" style="font-size:17px">delete</span></button>
+            <button class="btn btn-success btn-cantar" data-acao="cantar" data-id="${escapeHtml(l.id)}"><span class="msi">play_arrow</span> Cantar</button>
+            <button class="btn btn-ghost btn-sm" data-acao="compartilhar" data-id="${escapeHtml(l.id)}" aria-label="Compartilhar" title="Compartilhar link público"><span class="msi">share</span></button>
+            <button class="btn btn-ghost btn-sm" data-acao="pdf" data-id="${escapeHtml(l.id)}" aria-label="Exportar PDF" title="Exportar PDF"><span class="msi">picture_as_pdf</span></button>
+            <button class="btn btn-ghost btn-sm" data-acao="editar" data-id="${escapeHtml(l.id)}" aria-label="Editar"><span class="msi">edit</span></button>
+            <button class="btn btn-ghost btn-sm" data-acao="excluir" data-id="${escapeHtml(l.id)}" aria-label="Excluir"><span class="msi">delete</span></button>
           </div>
         </div>`;
     }).join('');
@@ -2334,7 +2421,7 @@ function escapeHtml(s) {
   function abrirFormNovo() {
     editandoId = null;
     el.modalTitle.textContent = 'Nova letra';
-    el.modalSub.textContent = 'Cola a letra aqui — o resto é com a gente.';
+    el.modalSub.textContent = 'Cole a letra. Separe as estrofes com uma linha em branco.';
     el.btnSalvar.textContent = 'Salvar letra';
     el.formLetra.reset();
     if (el.iTags) el.iTags.value = '';
@@ -2349,7 +2436,7 @@ function escapeHtml(s) {
     if (!l) return;
     editandoId = id;
     el.modalTitle.textContent = 'Editar letra';
-    el.modalSub.textContent = 'Altere o que quiser e salva.';
+    el.modalSub.textContent = 'Altere os campos e salve.';
     el.btnSalvar.textContent = 'Salvar alterações';
     el.iTitulo.value = l.titulo;
     el.iArtista.value = l.artista || '';
@@ -2626,8 +2713,8 @@ function escapeHtml(s) {
     });
     if (palcoAtivo) {
       toast(modo === 'auto'
-        ? 'Palco ligado — toque na tela pra pausar · ✕ pra sair'
-        : 'Palco ligado — toque pra avançar · ✕ pra sair');
+        ? 'Palco ligado. Toque na tela para pausar.'
+        : 'Palco ligado. Toque para avançar.');
     }
   }
 
@@ -2990,14 +3077,14 @@ function escapeHtml(s) {
     let html = '';
     // Botão "Favoritas" sempre primeiro (se tiver alguma)
     if (temFavoritos) {
-      html += `<button class="tag-filter-btn tag-fav${tagAtiva === '__fav__' ? ' active' : ''}" data-tag="__fav__">⭐ Favoritas</button>`;
+      html += `<button class="tag-filter-btn tag-fav${tagAtiva === '__fav__' ? ' active' : ''}" data-tag="__fav__">Favoritas (${favoritos.size})</button>`;
     }
     for (const [tag, count] of tags) {
       html += `<button class="tag-filter-btn${tagAtiva === tag ? ' active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} (${count})</button>`;
     }
     // Botão "limpar" se tem filtro ativo
     if (tagAtiva) {
-      html += `<button class="tag-filter-btn" data-tag="__limpar__" style="border-style:dashed;">✕ Limpar</button>`;
+      html += `<button class="tag-filter-btn" data-tag="__limpar__" style="border-style:dashed;">Limpar</button>`;
     }
     el.tagFilter.innerHTML = html;
   }
@@ -3028,10 +3115,10 @@ function escapeHtml(s) {
     const chave = String(id);
     if (favoritos.has(chave)) {
       favoritos.delete(chave);
-      toast('Removido dos favoritos');
+      toast('Removida dos favoritos.');
     } else {
       favoritos.add(chave);
-      toast('⭐ Adicionado aos favoritos!');
+      toast('Adicionada aos favoritos.');
     }
     storageSet(LS_FAVORITOS, [...favoritos]);
     renderTagFilter();
@@ -3257,6 +3344,155 @@ function escapeHtml(s) {
     if (salaCanalNuvem && supabase) { try { supabase.removeChannel(salaCanalNuvem); } catch {} }
   });
 
+  // ============ REDESIGN: menu "⋯", paleta de comandos, retomar ============
+
+  // Menu "⋯" do cabeçalho
+  if (el.btnMenu && el.menuPrincipal) {
+    el.btnMenu.addEventListener('click', e => {
+      e.stopPropagation();
+      const escondido = el.menuPrincipal.classList.toggle('hidden');
+      el.btnMenu.setAttribute('aria-expanded', String(!escondido));
+    });
+    document.addEventListener('click', e => {
+      if (el.menuPrincipal.classList.contains('hidden')) return;
+      if (el.menuPrincipal.contains(e.target) || el.btnMenu.contains(e.target)) return;
+      el.menuPrincipal.classList.add('hidden');
+      el.btnMenu.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !el.menuPrincipal.classList.contains('hidden')) {
+        el.menuPrincipal.classList.add('hidden');
+        el.btnMenu.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // Clicar em "Continuar de onde parou" abre a letra no player
+  if (el.resumeStrip) {
+    el.resumeStrip.addEventListener('click', e => {
+      const b = e.target.closest('[data-resume]');
+      if (!b) return;
+      const id = Number(b.dataset.resume);
+      if (!Number.isFinite(id)) return;
+      abrirPlayer(id);
+    });
+  }
+
+  // ---- Paleta de comandos (Ctrl+K / Cmd+K) ----
+  const COMANDOS = [
+    { rotulo: 'Nova letra', icone: 'add', run: () => abrirFormNovo() },
+    { rotulo: 'Buscar letras', icone: 'search', run: () => { el.busca.focus(); el.busca.select(); } },
+    { rotulo: 'Cantar a primeira letra', icone: 'play_arrow', run: () => {
+        if (letras.length > 0) abrirPlayer(letras[0].id);
+        else toast('Nenhuma letra no caderno ainda.', 'error');
+      } },
+    { rotulo: 'Alternar tema (claro/escuro)', icone: 'light_mode', run: () => el.btnTema.click() },
+    { rotulo: 'Histórico de acessos', icone: 'history', run: () => el.btnAcessos.click() },
+    { rotulo: 'Exportar backup (JSON)', icone: 'upload', run: () => el.btnExportar.click() },
+    { rotulo: 'Importar backup (JSON)', icone: 'download', run: () => el.inputImportar.click() },
+    { rotulo: 'Trocar senha', icone: 'lock', run: () => { redefinirOrigem = 'lista'; mostrarRedefinir(); } },
+    { rotulo: 'Sair da conta', icone: 'logout', run: () => document.getElementById('btn-sair').click() }
+  ];
+  let paletaSel = 0;
+  let paletaItens = [];
+
+  function paletaAbrir() {
+    if (!el.palette) return;
+    el.palette.classList.remove('hidden');
+    el.paletteInput.value = '';
+    paletaSel = 0;
+    paletaRender();
+    setTimeout(() => el.paletteInput.focus(), 20);
+  }
+  function paletaFechar() {
+    if (!el.palette) return;
+    el.palette.classList.add('hidden');
+  }
+  function paletaRender() {
+    if (!el.paletteList) return;
+    const termo = normalizarBusca(el.paletteInput.value);
+    paletaItens = COMANDOS.filter(c => !termo || normalizarBusca(c.rotulo).includes(termo));
+    // além dos comandos, as letras do caderno também são buscáveis
+    if (termo) {
+      for (const l of letras) {
+        if (normalizarBusca(l.titulo).includes(termo) || normalizarBusca(l.artista || '').includes(termo)) {
+          paletaItens.push({
+            rotulo: l.titulo,
+            icone: 'music_note',
+            run: () => abrirPlayer(l.id)
+          });
+        }
+      }
+    }
+    if (paletaSel >= paletaItens.length) paletaSel = 0;
+    if (paletaItens.length === 0) {
+      el.paletteList.innerHTML = '<div class="palette-empty">Nada encontrado</div>';
+      return;
+    }
+    el.paletteList.innerHTML = paletaItens.map((c, i) =>
+      '<button class="palette-item' + (i === paletaSel ? ' sel' : '') + '" data-paleta="' + i + '">' +
+      '<span class="msi">' + c.icone + '</span><span>' + escapeHtml(c.rotulo) + '</span></button>'
+    ).join('');
+  }
+
+  if (el.palette) {
+    el.palette.addEventListener('click', e => { if (e.target === el.palette) paletaFechar(); });
+    el.paletteInput.addEventListener('input', () => { paletaSel = 0; paletaRender(); });
+    el.paletteInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); paletaFechar(); return; }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        paletaSel = Math.min(paletaSel + 1, paletaItens.length - 1);
+        paletaRender();
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        paletaSel = Math.max(paletaSel - 1, 0);
+        paletaRender();
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const c = paletaItens[paletaSel];
+        if (c) { paletaFechar(); c.run(); }
+      }
+    });
+    el.paletteList.addEventListener('click', e => {
+      const b = e.target.closest('[data-paleta]');
+      if (!b) return;
+      const c = paletaItens[Number(b.dataset.paleta)];
+      if (c) { paletaFechar(); c.run(); }
+    });
+    document.addEventListener('keydown', e => {
+      const abriu = el.palette.classList.contains('hidden');
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        if (abriu) paletaAbrir(); else paletaFechar();
+        return;
+      }
+      if (e.key === 'Escape' && !abriu) paletaFechar();
+    });
+  }
+
+
+  // ===== Menu de acoes do player (mobile) =====
+  const btnPlayerMore = $('#btn-player-more');
+  const playerActions = $('#player-actions');
+  if (btnPlayerMore && playerActions) {
+    btnPlayerMore.addEventListener('click', e => {
+      e.stopPropagation();
+      const aberto = playerActions.classList.toggle('aberto');
+      btnPlayerMore.setAttribute('aria-expanded', String(aberto));
+    });
+    document.addEventListener('click', e => {
+      if (!playerActions.classList.contains('aberto')) return;
+      if (playerActions.contains(e.target) || btnPlayerMore.contains(e.target)) return;
+      playerActions.classList.remove('aberto');
+      btnPlayerMore.setAttribute('aria-expanded', 'false');
+    });
+  }
+
   // ===== Hero Dock (atalhos flutuantes) =====
   const heroDock = $('#hero-dock');
   if (heroDock) {
@@ -3270,19 +3506,19 @@ function escapeHtml(s) {
           el.busca.value = '';
           render();
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          toast(letras.length ? `Mostrando todas as ${letras.length} letra(s).` : 'Caderno vazio.');
+          toast(letras.length ? `Mostrando todas as ${letras.length} letras.` : 'Nenhuma letra ainda.');
           break;
         case 'buscar':
           el.busca.focus();
           el.busca.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          toast('Digita o nome da música ou artista.');
+          toast('Busque pelo nome da música ou do artista.');
           break;
         case 'nova':
           abrirFormNovo();
           break;
         case 'cantar':
           if (letras.length > 0) abrirPlayer(letras[0].id);
-          else toast('Caderno vazio — adiciona uma letra primeiro.', 'error');
+          else toast('Nenhuma letra no caderno. Adicione a primeira.', 'error');
           break;
         case 'senha':
           redefinirOrigem = 'lista';
@@ -3447,6 +3683,9 @@ function escapeHtml(s) {
   el.formRedefinir.addEventListener('submit', tratarRedefinir);
 
   carregar();
+  // Aplica o tema ANTES de qualquer coisa: senão a tela de login aparece
+  // escura pra quem usa tema claro (e só corrige depois do login).
+  initTema();
   // Restaura sala de ensaio se havia uma ativa
   restaurarSalaLocal();
   (async () => {
