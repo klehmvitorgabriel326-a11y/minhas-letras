@@ -2764,24 +2764,39 @@ function escapeHtml(s) {
 
   // Estrofe grande demais (ou Palco com fonte +30%)? Encolhe a fonte
   // até a letra inteira caber na tela. Mede → reduz → mede de novo.
+  //
+  // IMPORTANTE: o ajuste é medido NA BASE (escala do usuário desligada) e
+  // guardado em --fonte-fit; a escala do usuário é aplicada POR CIMA.
+  // Se o auto-ajuste absorvesse a escala, apertar A+ quebraria mais linhas e
+  // o encolhimento compensaria — a letra DIMINUÍVA ao apertar A+ (bug antigo).
   function ajustarEstrofe(line) {
     const view = line.closest('.manual-view');
     if (!view) return;
-    line.style.fontSize = ''; // volta ao tamanho base do CSS (normal ou palco)
+    const stage = el.stage;
+    const escalaSalva = stage ? stage.style.getPropertyValue('--fonte-escala') : '';
+    // Mede o ajuste NA BASE (sem a escala do usuário)
+    if (stage) stage.style.setProperty('--fonte-escala', '1');
+    line.style.removeProperty('font-size'); // limpa inline antigo (fixava o tamanho)
+    line.style.setProperty('--fonte-fit', '1');
     const estilos = window.getComputedStyle(view);
     const padding = parseFloat(estilos.paddingTop) + parseFloat(estilos.paddingBottom);
     // Reserva: dica de cima (~34px) + contador "2/8" embaixo (~54px) + folga
     const disponivel = view.clientHeight - padding - 120;
-    if (disponivel <= 0) return;
-    // Até 4 passos: mede a altura real e reduz 1 passo (com piso de 12px)
-    for (let i = 0; i < 4; i++) {
-      const necessario = line.getBoundingClientRect().height;
-      if (necessario <= disponivel) break; // cabeu!
-      const atualPx = parseFloat(window.getComputedStyle(line).fontSize);
-      const novaPx = Math.max(12, Math.floor(atualPx * (disponivel / necessario)));
-      if (novaPx >= atualPx) break; // já tá no mínimo
-      line.style.fontSize = novaPx + 'px';
+    if (disponivel > 0) {
+      // Até 4 passos: mede a altura real e reduz 1 passo (com piso de 12px)
+      for (let i = 0; i < 4; i++) {
+        const necessario = line.getBoundingClientRect().height;
+        if (necessario <= disponivel) break; // cabeu!
+        const atualPx = parseFloat(window.getComputedStyle(line).fontSize);
+        const novaPx = Math.max(12, Math.floor(atualPx * (disponivel / necessario)));
+        if (novaPx >= atualPx) break; // já tá no mínimo
+        const fit = Math.max(0.2, novaPx / atualPx);
+        line.style.setProperty('--fonte-fit', String(fit));
+      }
     }
+    // Devolve a escala do usuário — ela é aplicada POR CIMA do ajuste,
+    // então A+/A- sempre aumentam/diminuem de verdade.
+    if (stage) stage.style.setProperty('--fonte-escala', escalaSalva || '1');
   }
 
   function avancar() {
@@ -2921,12 +2936,17 @@ function escapeHtml(s) {
   })();
 
   // ============ FEATURE: TAMANHO DA FONTE NO PLAYER ============
+  // A escala vira uma VARIÁVEL CSS (--fonte-escala) multiplicada pelo tamanho
+  // base do clamp no styles.css.
+  // Antes era font-size: <escala>rem inline — como o clamp base é bem maior
+  // que 1rem, o A+ DIMINUIA a letra (41.6px -> 17.6px) e o A- aumentava.
   function aplicarFontScale() {
     if (!el.stage) return;
-    el.stage.style.fontSize = fontScale === 1 ? '' : `${fontScale}rem`;
-    // Aplica também nos elementos de letra dentro do stage
+    el.stage.style.setProperty('--fonte-escala', String(fontScale));
+    // Aplica também nos elementos de letra dentro do stage (modo manual usa
+    // .lyric-line, modo auto usa .lyric-text — o CSS cuida dos dois via var)
     el.stage.querySelectorAll('.lyric-line, .lyric-text, .auto-estrofe, #lyric-line').forEach(x => {
-      x.style.fontSize = fontScale === 1 ? '' : `${fontScale}rem`;
+      x.style.removeProperty('font-size'); // tira o inline antigo (fixava o tamanho)
     });
     // Ajusta a estrofe no modo manual depois da mudança
     if (modo === 'manual') {
