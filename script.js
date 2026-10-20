@@ -2393,19 +2393,28 @@ function escapeHtml(s) {
     el.grid.innerHTML = lista.map(l => {
       const est = contarEstrofes(l.letra);
       const lin = contarLinhas(l.letra);
-      // o container de tags sai SEMPRE (mesmo vazio) pra todos os cards
-      // terem exatamente a mesma altura
-      const tagsHtml = `<div class="card-tags">${(l.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`;
+      // No maximo 2 tags visiveis; o resto vira "+N". Assim a faixa do card
+      // tem sempre a mesma altura, com ou sem tag.
+      const tags = (l.tags || []).slice(0, 2);
+      const extraTags = (l.tags || []).length - tags.length;
+      const tagsHtml = tags.length
+        ? '<div class="card-tags">' +
+            tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') +
+            (extraTags > 0 ? `<span class="tag">+${extraTags}</span>` : '') +
+          '</div>'
+        : '';
       return `
         <div class="card"${arrastavel ? ' draggable="true"' : ''} data-card-id="${escapeHtml(l.id)}">
           <button class="btn btn-ghost btn-sm btn-fav${favoritos.has(String(l.id)) ? ' is-fav' : ''}" data-acao="favoritar" data-id="${escapeHtml(l.id)}" aria-label="Favoritar" title="${favoritos.has(String(l.id)) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${favoritos.has(String(l.id)) ? '★' : '☆'}</button>
-          <div class="card-title">${destacarTermo(l.titulo, termoNorm)}</div>
+          <div class="card-title"><span>${destacarTermo(l.titulo, termoNorm)}</span></div>
           <div class="card-artist">${escapeHtml(l.artista || '—')}</div>
-          ${tagsHtml}
-          <div class="card-meta">
-            <span>${est} estrofe(s)</span>
-            <span>·</span>
-            <span>${lin} linha(s)</span>
+          <div class="card-band">
+            ${tagsHtml}
+            <div class="card-meta">
+              <span>${est} estrofe${est === 1 ? '' : 's'}</span>
+              <span>·</span>
+              <span>${lin} linha${lin === 1 ? '' : 's'}</span>
+            </div>
           </div>
           <div class="card-actions">
             <button class="btn btn-success btn-cantar" data-acao="cantar" data-id="${escapeHtml(l.id)}"><span class="msi">play_arrow</span> Cantar</button>
